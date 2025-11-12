@@ -16,7 +16,7 @@ function Dashboard() {
       }
 
       try {
-        const response = await fetch('http://localhost:3001/api/profile', {
+        const response = await fetch('http://localhost:3333/api/profile', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

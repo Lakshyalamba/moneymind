@@ -3,13 +3,9 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-
-// Middleware
+const PORT = process.env.PORT || 3333;
 app.use(cors());
 app.use(express.json());
-
-// Routes
 app.use('/api', authRoutes);
 
 app.listen(PORT, () => {
