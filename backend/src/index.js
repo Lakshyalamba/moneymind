@@ -8,6 +8,8 @@ app.use(cors());
 app.use(express.json());
 app.use('/api', authRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT, (error) => {
+  console.log(error)
+
   console.log(`Server running on port ${PORT}`);
 });

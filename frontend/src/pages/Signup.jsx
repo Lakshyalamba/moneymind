@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import '../styles/auth.css';
 
 function Signup() {
   const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ function Signup() {
   });
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -24,7 +26,6 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.name || !formData.email || !formData.password) {
       setMessage('All fields are required');
       setMessageType('error');
@@ -50,9 +51,9 @@ function Signup() {
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        setMessage('Account created successfully!');
+        setMessage('Welcome to MoneyMind!');
         setMessageType('success');
-        setFormData({ name: '', email: '', password: '' });
+        setTimeout(() => navigate('/dashboard'), 1500);
       } else {
         setMessage(data.error || 'Signup failed');
         setMessageType('error');
@@ -64,9 +65,13 @@ function Signup() {
   };
 
   return (
-    <div className="container">
-      <div className="card">
-        <h1 className="title">Sign Up for MoneyMind</h1>
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-header">
+          <h1 className="auth-logo">MoneyMind</h1>
+          <h2 className="auth-title">Create Account</h2>
+          <p className="auth-subtitle">Join thousands managing their finances smarter</p>
+        </div>
         
         {message && (
           <div className={`message ${messageType}`}>
@@ -74,50 +79,53 @@ function Signup() {
           </div>
         )}
 
-        <form className="form" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="label">Name</label>
+            <label className="form-label">Full Name</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="input"
+              className="form-input"
+              placeholder="Enter your full name"
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="label">Email</label>
+            <label className="form-label">Email Address</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="input"
+              className="form-input"
+              placeholder="Enter your email"
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="label">Password</label>
+            <label className="form-label">Password</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="input"
+              className="form-input"
+              placeholder="Create a password"
               required
             />
           </div>
 
-          <button type="submit" className="button">
-            Sign Up
+          <button type="submit" className="auth-button">
+            Create Account
           </button>
         </form>
 
-        <div className="link">
-          Already have an account? <Link to="/login">Login here</Link>
+        <div className="auth-link">
+          Already have an account? <Link to="/login">Sign in here</Link>
         </div>
       </div>
     </div>

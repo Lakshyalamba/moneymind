@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import '../styles/auth.css';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -33,7 +34,7 @@ function Login() {
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
-        setMessage(`Welcome to MoneyMind, ${data.user.name}!`);
+        setMessage(`Welcome back, ${data.user.name}!`);
         setMessageType('success');
         setTimeout(() => navigate('/dashboard'), 1500);
       } else {
@@ -47,9 +48,13 @@ function Login() {
   };
 
   return (
-    <div className="container">
-      <div className="card">
-        <h1 className="title">Login to MoneyMind</h1>
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-header">
+          <h1 className="auth-logo">MoneyMind</h1>
+          <h2 className="auth-title">Welcome Back</h2>
+          <p className="auth-subtitle">Sign in to your account to continue</p>
+        </div>
         
         {message && (
           <div className={`message ${messageType}`}>
@@ -57,38 +62,40 @@ function Login() {
           </div>
         )}
 
-        <form className="form" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="label">Email</label>
+            <label className="form-label">Email Address</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="input"
+              className="form-input"
+              placeholder="Enter your email"
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="label">Password</label>
+            <label className="form-label">Password</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="input"
+              className="form-input"
+              placeholder="Enter your password"
               required
             />
           </div>
 
-          <button type="submit" className="button">
-            Login
+          <button type="submit" className="auth-button">
+            Sign In
           </button>
         </form>
 
-        <div className="link">
-          Don't have an account? <Link to="/signup">Sign up here</Link>
+        <div className="auth-link">
+          Don't have an account? <Link to="/signup">Create one here</Link>
         </div>
       </div>
     </div>

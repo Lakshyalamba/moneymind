@@ -29,13 +29,20 @@ router.post('/signup', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
+    const refreshToken = jwt.sign(
+      {userId: user.id, email: user.email},
+      process.env.JWT_SECRET,
+      {expiresIn: '30d'}
+    )
 
     res.status(201).json({ 
       message: 'User created successfully', 
       token,
+      refreshToken,
       user: { id: user.id, name: user.name, email: user.email }
     });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -59,10 +66,16 @@ router.post('/login', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
+    const refreshToken = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    )
 
     res.json({ 
       message: 'Login successful', 
       token,
+      refreshToken,
       user: { id: user.id, name: user.name, email: user.email }
     });
   } catch (error) {
