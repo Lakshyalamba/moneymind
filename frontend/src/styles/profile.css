@@ -1,0 +1,247 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.profile-page {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #ffffff 0%, #faf8f3 100%);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  color: #D4AF37;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.profile-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.profile-card {
+  background: #FFFFFF;
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.profile-photo-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.photo-container {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #D4AF37;
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+}
+
+.photo-upload {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #D4AF37;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+  transition: all 0.3s ease;
+}
+
+.photo-upload:hover {
+  transform: scale(1.1);
+}
+
+.upload-icon {
+  font-size: 1.2rem;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-item label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.info-item p {
+  color: #666;
+  font-size: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.edit-button {
+  margin-top: 1rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #D4AF37, #F4E4BC);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.edit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.form-input,
+.form-textarea {
+  padding: 0.875rem 1rem;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fafafa;
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #D4AF37;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.save-button {
+  flex: 1;
+  padding: 1rem;
+  background: linear-gradient(135deg, #D4AF37, #F4E4BC);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
+
+.cancel-button {
+  flex: 1;
+  padding: 1rem;
+  background: transparent;
+  color: #666;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-button:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .profile-page {
+    padding: 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .profile-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .profile-photo {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .photo-upload {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+}

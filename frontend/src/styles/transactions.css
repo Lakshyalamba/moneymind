@@ -1,0 +1,243 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.transactions-page {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #ffffff 0%, #faf8f3 100%);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  color: #D4AF37;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.transactions-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.search-bar {
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #FFFFFF;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e8e8e8;
+  background: #FFFFFF;
+  color: #666;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.filter-btn:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #D4AF37, #F4E4BC);
+  color: white;
+  border-color: #D4AF37;
+}
+
+.transactions-table {
+  background: #FFFFFF;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 100px 1fr 120px 120px 2fr;
+  background: linear-gradient(135deg, #D4AF37, #F4E4BC);
+  color: white;
+  font-weight: 600;
+}
+
+.header-cell {
+  padding: 1rem;
+  text-align: left;
+}
+
+.table-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 120px 120px 2fr;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.table-row:hover {
+  background-color: #fafafa;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-cell {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.type-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.type-badge.income {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.type-badge.expense {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.amount-cell {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.amount-cell.income {
+  color: #28a745;
+}
+
+.amount-cell.expense {
+  color: #dc3545;
+}
+
+.note-cell {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background: #FFFFFF;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+@media (max-width: 768px) {
+  .transactions-page {
+    padding: 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-bar {
+    max-width: none;
+  }
+  
+  .filter-buttons {
+    justify-content: center;
+  }
+  
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .table-header {
+    display: none;
+  }
+  
+  .table-row {
+    background: #FFFFFF;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.1);
+    padding: 1rem;
+    display: block;
+  }
+  
+  .table-cell {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .table-cell:last-child {
+    border-bottom: none;
+  }
+  
+  .table-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #333;
+    display: inline-block;
+    width: 80px;
+  }
+}
