@@ -1,52 +1,104 @@
-import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import '../styles/dashboard.css';
 
 function Dashboard() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  
+  const navigate = useNavigate();
+
+  // Sample data
   const summaryData = {
     income: 5420.00,
     expense: 3280.50,
     balance: 2139.50
   };
 
-  const categoryData = [
-    { name: 'Food', value: 850, color: '#D4AF37' },
-    { name: 'Transport', value: 420, color: '#F4E4BC' },
-    { name: 'Shopping', value: 680, color: '#B8941F' },
-    { name: 'Bills', value: 1330, color: '#E6D07A' }
+  const pieData = [
+    { name: 'Income', value: summaryData.income, color: '#28a745' },
+    { name: 'Expense', value: summaryData.expense, color: '#dc3545' }
   ];
 
-  const monthlyData = [
+  const barData = [
     { month: 'Jan', amount: 2400 },
     { month: 'Feb', amount: 1398 },
-    { month: 'Mar', amount: 2800 },
+    { month: 'Mar', amount: 9800 },
     { month: 'Apr', amount: 3908 },
-    { month: 'May', amount: 2800 },
-    { month: 'Jun', amount: 3280 }
+    { month: 'May', amount: 4800 },
+    { month: 'Jun', amount: 3800 }
   ];
 
   const recentTransactions = [
-    { id: 1, description: 'Grocery Shopping', amount: -120.50, date: '2024-01-15' },
-    { id: 2, description: 'Salary Payment', amount: 3500, date: '2024-01-14' },
-    { id: 3, description: 'Coffee Shop', amount: -12.75, date: '2024-01-13' },
-    { id: 4, description: 'Electricity Bill', amount: -85.30, date: '2024-01-12' },
-    { id: 5, description: 'Freelance Work', amount: 800, date: '2024-01-11' }
+    { id: 1, description: 'Salary Payment', amount: 3500, type: 'income', date: '2024-01-15' },
+    { id: 2, description: 'Grocery Shopping', amount: -120.50, type: 'expense', date: '2024-01-14' },
+    { id: 3, description: 'Freelance Work', amount: 800, type: 'income', date: '2024-01-13' },
+    { id: 4, description: 'Electricity Bill', amount: -85.30, type: 'expense', date: '2024-01-12' },
+    { id: 5, description: 'Coffee Shop', amount: -12.75, type: 'expense', date: '2024-01-11' }
   ];
 
-  const topCategories = [
-    { name: 'Bills', amount: 1330 },
-    { name: 'Food', amount: 850 },
-    { name: 'Shopping', amount: 680 }
-  ];
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3333/api/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      } else {
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
+    } catch (error) {
+      localStorage.removeItem('token');
+      navigate('/login');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
+  const getInitial = (name) => {
+    return name ? name.charAt(0).toUpperCase() : 'U';
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard">
+        <div className="dashboard-content">
+          <div style={{ textAlign: 'center', padding: '3rem' }}>Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>Dashboard</h1>
+          <div className="welcome-section">
+            <h1>Welcome back, {user?.name || 'User'}!</h1>
+            <p>Here's your financial overview</p>
+          </div>
           <div className="header-right">
             <nav className="dashboard-nav">
               <Link to="/add-transaction" className="nav-link">Add Transaction</Link>
@@ -57,18 +109,24 @@ function Dashboard() {
                 className="profile-trigger" 
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
               >
-                <img 
-                  src="/default-avatar.png" 
-                  alt="Profile" 
-                  className="profile-avatar"
-                />
-                <span className="profile-name">John Doe</span>
+                {user?.profilePhoto ? (
+                  <img 
+                    src={user.profilePhoto} 
+                    alt="Profile" 
+                    className="profile-avatar"
+                  />
+                ) : (
+                  <div className="profile-initial">
+                    {getInitial(user?.name)}
+                  </div>
+                )}
+                <span className="profile-name">{user?.name || 'User'}</span>
                 <span className="dropdown-arrow">▼</span>
               </div>
               {showProfileMenu && (
                 <div className="profile-dropdown">
                   <Link to="/profile" className="dropdown-item">View Profile</Link>
-                  <Link to="/" className="dropdown-item">Logout</Link>
+                  <button onClick={handleLogout} className="dropdown-item" style={{border: 'none', background: 'none', width: '100%', textAlign: 'left'}}>Logout</button>
                 </div>
               )}
             </div>
@@ -94,41 +152,49 @@ function Dashboard() {
 
         <section className="charts-section">
           <div className="chart-card">
-            <h3>Category Breakdown</h3>
-            <ResponsiveContainer width="100%" height={250}>
+            <h3 className="chart-title">Income vs Expense</h3>
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={categoryData}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
                   dataKey="value"
                 >
-                  {categoryData.map((entry, index) => (
+                  {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `$${value}`} />
+                <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
           <div className="chart-card">
-            <h3>Monthly Trend</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={monthlyData}>
+            <h3 className="chart-title">Monthly Spending</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={barData}>
+                <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip formatter={(value) => `$${value}`} />
-                <Line type="monotone" dataKey="amount" stroke="#D4AF37" strokeWidth={3} />
-              </LineChart>
+                <Bar dataKey="amount" fill="#D4AF37" />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </section>
 
-        <section className="bottom-section">
-          <div className="transactions-card">
-            <h3>Recent Transactions</h3>
+        <section className="transactions-section">
+          <div className="section-header">
+            <h2 className="section-title">Recent Transactions</h2>
+            <div className="action-buttons">
+              <Link to="/add-transaction" className="btn btn-primary">Add Transaction</Link>
+              <Link to="/transactions" className="btn btn-secondary">View All</Link>
+            </div>
+          </div>
+
+          {recentTransactions.length > 0 ? (
             <ul className="transactions-list">
               {recentTransactions.map((transaction) => (
                 <li key={transaction.id} className="transaction-item">
@@ -136,25 +202,18 @@ function Dashboard() {
                     <h4>{transaction.description}</h4>
                     <p>{transaction.date}</p>
                   </div>
-                  <div className={`transaction-amount ${transaction.amount > 0 ? 'income' : 'expense'}`}>
+                  <div className={`transaction-amount ${transaction.type}`}>
                     {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
                   </div>
                 </li>
               ))}
             </ul>
-          </div>
-
-          <div className="categories-card">
-            <h3>Top Spending</h3>
-            <ul className="categories-list">
-              {topCategories.map((category, index) => (
-                <li key={index} className="category-item">
-                  <span className="category-name">{category.name}</span>
-                  <span className="category-amount">${category.amount}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          ) : (
+            <div className="empty-state">
+              <p>No transactions yet</p>
+              <Link to="/add-transaction" className="btn btn-primary">Add Your First Transaction</Link>
+            </div>
+          )}
         </section>
       </main>
     </div>

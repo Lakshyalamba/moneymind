@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import '../styles/profile.css';
 
 function Profile() {
   const [user, setUser] = useState({
-    profilePhoto: '',
-    username: '',
+    name: '',
     email: '',
     phone: '',
-    bio: ''
+    bio: '',
+    profilePhoto: ''
   });
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [photoPreview, setPhotoPreview] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserProfile();
@@ -21,13 +22,25 @@ function Profile() {
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:3333/api/profile', {
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch('http://localhost:3333/api/profile', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUser(response.data);
-      setFormData(response.data);
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+        setFormData(data.user);
+      } else {
+        navigate('/login');
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
+      navigate('/login');
     }
   };
 
@@ -46,7 +59,7 @@ function Profile() {
         setPhotoPreview(reader.result);
         setFormData({
           ...formData,
-          profilePhoto: file
+          profilePhoto: reader.result
         });
       };
       reader.readAsDataURL(file);
@@ -56,24 +69,20 @@ function Profile() {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
-      const formDataToSend = new FormData();
-      
-      Object.keys(formData).forEach(key => {
-        if (formData[key]) {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
-
-      await axios.put('http://localhost:3333/api/profile', formDataToSend, {
+      const response = await fetch('http://localhost:3333/api/profile', {
+        method: 'PUT',
         headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
       });
 
-      setUser(formData);
-      setIsEditing(false);
-      setPhotoPreview('');
+      if (response.ok) {
+        setUser(formData);
+        setIsEditing(false);
+        setPhotoPreview('');
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
     }
@@ -83,6 +92,10 @@ function Profile() {
     setFormData(user);
     setIsEditing(false);
     setPhotoPreview('');
+  };
+
+  const getInitial = (name) => {
+    return name ? name.charAt(0).toUpperCase() : 'U';
   };
 
   return (
@@ -96,11 +109,17 @@ function Profile() {
         <div className="profile-card">
           <div className="profile-photo-section">
             <div className="photo-container">
-              <img
-                src={photoPreview || user.profilePhoto || '/default-avatar.png'}
-                alt="Profile"
-                className="profile-photo"
-              />
+              {photoPreview || user.profilePhoto ? (
+                <img
+                  src={photoPreview || user.profilePhoto}
+                  alt="Profile"
+                  className="profile-photo"
+                />
+              ) : (
+                <div className="profile-initial">
+                  {getInitial(user.name)}
+                </div>
+              )}
               {isEditing && (
                 <label className="photo-upload">
                   <input
@@ -118,12 +137,12 @@ function Profile() {
           {!isEditing ? (
             <div className="profile-info">
               <div className="info-item">
-                <label>Username</label>
-                <p>{user.username}</p>
+                <label>Name</label>
+                <p>{user.name || 'Not provided'}</p>
               </div>
               <div className="info-item">
                 <label>Email</label>
-                <p>{user.email}</p>
+                <p>{user.email || 'Not provided'}</p>
               </div>
               <div className="info-item">
                 <label>Phone</label>
@@ -140,11 +159,11 @@ function Profile() {
           ) : (
             <div className="profile-form">
               <div className="form-group">
-                <label>Username</label>
+                <label>Name</label>
                 <input
                   type="text"
-                  name="username"
-                  value={formData.username}
+                  name="name"
+                  value={formData.name || ''}
                   onChange={handleInputChange}
                   className="form-input"
                 />
@@ -154,7 +173,7 @@ function Profile() {
                 <input
                   type="email"
                   name="email"
-                  value={formData.email}
+                  value={formData.email || ''}
                   onChange={handleInputChange}
                   className="form-input"
                 />
@@ -164,7 +183,7 @@ function Profile() {
                 <input
                   type="tel"
                   name="phone"
-                  value={formData.phone}
+                  value={formData.phone || ''}
                   onChange={handleInputChange}
                   className="form-input"
                 />
@@ -173,7 +192,7 @@ function Profile() {
                 <label>Bio</label>
                 <textarea
                   name="bio"
-                  value={formData.bio}
+                  value={formData.bio || ''}
                   onChange={handleInputChange}
                   className="form-textarea"
                   rows="3"
