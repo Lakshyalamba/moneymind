@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import AddTransaction from './pages/AddTransaction';
 import Transactions from './pages/Transactions';
 import Profile from './pages/Profile';
+import Goals from './pages/Goals';
 import './App.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/add-transaction" element={<AddTransaction />} />
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/goals" element={<Goals />} />
         </Routes>
       </div>
     </Router>

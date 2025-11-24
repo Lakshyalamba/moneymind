@@ -103,6 +103,7 @@ function Dashboard() {
             <nav className="dashboard-nav">
               <Link to="/add-transaction" className="nav-link">Add Transaction</Link>
               <Link to="/transactions" className="nav-link">View Transactions</Link>
+              <Link to="/goals" className="nav-link">Goals</Link>
             </nav>
             <div className="profile-section">
               <div 
