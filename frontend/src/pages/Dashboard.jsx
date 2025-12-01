@@ -19,7 +19,7 @@ function Dashboard() {
   const fetchTransactions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3333/api/transactions', {
+      const response = await fetch('https://moneymind-1-1jg4.onrender.com/api/transactions', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -77,7 +77,7 @@ function Dashboard() {
         return;
       }
 
-      const response = await fetch('http://localhost:3333/api/profile', {
+      const response = await fetch('https://moneymind-1-1jg4.onrender.com/api/profile', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -166,14 +166,17 @@ function Dashboard() {
           <div className="summary-card income">
             <div className="card-title">Total Income</div>
             <div className="card-amount">₹{summaryData.income.toLocaleString('en-IN')}</div>
+            <div className="card-quote">"Every rupee earned is a step towards freedom"</div>
           </div>
           <div className="summary-card expense">
             <div className="card-title">Total Expense</div>
             <div className="card-amount">₹{summaryData.expense.toLocaleString('en-IN')}</div>
+            <div className="card-quote">"Smart spending builds wealth"</div>
           </div>
           <div className="summary-card balance">
             <div className="card-title">Balance</div>
             <div className="card-amount">₹{summaryData.balance.toLocaleString('en-IN')}</div>
+            <div className="card-quote">"Your financial foundation"</div>
           </div>
         </section>
 

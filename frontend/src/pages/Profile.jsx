@@ -27,7 +27,7 @@ function Profile() {
         return;
       }
 
-      const response = await fetch('http://localhost:3333/api/profile', {
+      const response = await fetch('https://moneymind-1-1jg4.onrender.com/api/profile', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -69,7 +69,7 @@ function Profile() {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3333/api/profile', {
+      const response = await fetch('https://moneymind-1-1jg4.onrender.com/api/profile', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
