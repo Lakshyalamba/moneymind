@@ -9,11 +9,36 @@ function Dashboard() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navigate = useNavigate();
 
-  // Sample data
-  const summaryData = {
-    income: 5420.00,
-    expense: 3280.50,
-    balance: 2139.50
+  const [transactions, setTransactions] = useState([]);
+  const [summaryData, setSummaryData] = useState({
+    income: 0,
+    expense: 0,
+    balance: 0
+  });
+
+  const fetchTransactions = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3333/api/transactions', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setTransactions(data);
+        
+        // Calculate summary
+        const income = data.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const expense = data.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+        setSummaryData({
+          income,
+          expense,
+          balance: income - expense
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
   };
 
   const pieData = [
@@ -22,24 +47,25 @@ function Dashboard() {
   ];
 
   const barData = [
-    { month: 'Jan', amount: 2400 },
-    { month: 'Feb', amount: 1398 },
-    { month: 'Mar', amount: 9800 },
-    { month: 'Apr', amount: 3908 },
-    { month: 'May', amount: 4800 },
-    { month: 'Jun', amount: 3800 }
+    { month: 'Jan', amount: 240000 },
+    { month: 'Feb', amount: 139800 },
+    { month: 'Mar', amount: 980000 },
+    { month: 'Apr', amount: 390800 },
+    { month: 'May', amount: 480000 },
+    { month: 'Jun', amount: 380000 }
   ];
 
-  const recentTransactions = [
-    { id: 1, description: 'Salary Payment', amount: 3500, type: 'income', date: '2024-01-15' },
-    { id: 2, description: 'Grocery Shopping', amount: -120.50, type: 'expense', date: '2024-01-14' },
-    { id: 3, description: 'Freelance Work', amount: 800, type: 'income', date: '2024-01-13' },
-    { id: 4, description: 'Electricity Bill', amount: -85.30, type: 'expense', date: '2024-01-12' },
-    { id: 5, description: 'Coffee Shop', amount: -12.75, type: 'expense', date: '2024-01-11' }
-  ];
+  const recentTransactions = transactions.slice(0, 5).map(t => ({
+    id: t.id,
+    description: t.category,
+    amount: t.type === 'income' ? t.amount : -t.amount,
+    type: t.type,
+    date: t.date
+  }));
 
   useEffect(() => {
     fetchUserProfile();
+    fetchTransactions();
   }, []);
 
   const fetchUserProfile = async () => {
@@ -139,15 +165,15 @@ function Dashboard() {
         <section className="summary-cards">
           <div className="summary-card income">
             <div className="card-title">Total Income</div>
-            <div className="card-amount">${summaryData.income.toFixed(2)}</div>
+            <div className="card-amount">₹{summaryData.income.toLocaleString('en-IN')}</div>
           </div>
           <div className="summary-card expense">
             <div className="card-title">Total Expense</div>
-            <div className="card-amount">${summaryData.expense.toFixed(2)}</div>
+            <div className="card-amount">₹{summaryData.expense.toLocaleString('en-IN')}</div>
           </div>
           <div className="summary-card balance">
             <div className="card-title">Balance</div>
-            <div className="card-amount">${summaryData.balance.toFixed(2)}</div>
+            <div className="card-amount">₹{summaryData.balance.toLocaleString('en-IN')}</div>
           </div>
         </section>
 
@@ -167,7 +193,7 @@ function Dashboard() {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+                <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -179,7 +205,7 @@ function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
-                <Tooltip formatter={(value) => `$${value}`} />
+                <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
                 <Bar dataKey="amount" fill="#D4AF37" />
               </BarChart>
             </ResponsiveContainer>
@@ -204,7 +230,7 @@ function Dashboard() {
                     <p>{transaction.date}</p>
                   </div>
                   <div className={`transaction-amount ${transaction.type}`}>
-                    {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
+                    {transaction.amount > 0 ? '+' : ''}₹{Math.abs(transaction.amount).toLocaleString('en-IN')}
                   </div>
                 </li>
               ))}

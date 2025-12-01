@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "build": "npm install && prisma generate",
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
   },

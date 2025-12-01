@@ -14,7 +14,7 @@
 .dashboard-header {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
-  padding: 1rem 2rem;
+  padding: 0.8rem 2rem;
   box-shadow: 0 2px 15px rgba(212, 175, 55, 0.1);
   border-bottom: 1px solid rgba(212, 175, 55, 0.15);
   position: sticky;
@@ -33,27 +33,28 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .dashboard-header h1 {
-  font-size: 2rem;
+  font-size: 1.8rem;
   color: #D4AF37;
   font-weight: 600;
 }
 
 .dashboard-nav {
   display: flex;
-  gap: 1rem;
+  gap: 0.7rem;
 }
 
 .nav-link {
-  padding: 0.75rem 1.5rem;
+  padding: 0.6rem 1.2rem;
   background: linear-gradient(135deg, #D4AF37, #F4E4BC);
   color: white;
   text-decoration: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 500;
+  font-size: 0.9rem;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
 }
@@ -70,11 +71,11 @@
 .profile-trigger {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  gap: 0.3rem;
+  padding: 0.1rem 0.7rem;
   background: #FFFFFF;
   border: 2px solid rgba(212, 175, 55, 0.2);
-  border-radius: 25px;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -85,8 +86,8 @@
 }
 
 .profile-avatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #D4AF37;
@@ -100,7 +101,7 @@
 
 .dropdown-arrow {
   color: #D4AF37;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   transition: transform 0.3s ease;
 }
 
@@ -108,22 +109,23 @@
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 0.5rem;
+  margin-top: 0.3rem;
   background: #FFFFFF;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.2);
   border: 1px solid rgba(212, 175, 55, 0.1);
-  min-width: 150px;
+  min-width: 130px;
   z-index: 1000;
 }
 
 .dropdown-item {
   display: block;
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 0.8rem;
   color: #333;
   text-decoration: none;
   transition: all 0.3s ease;
   border-bottom: 1px solid #f0f0f0;
+  font-size: 0.85rem;
 }
 
 .dropdown-item:last-child {
@@ -172,7 +174,7 @@
 }
 
 .card-amount {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
 }
 
@@ -224,6 +226,82 @@
   border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
+.transactions-section {
+  background: #FFFFFF;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  color: #333;
+  font-weight: 600;
+  margin: 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.btn {
+  padding: 0.6rem 1.2rem;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #D4AF37, #F4E4BC);
+  color: white;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #D4AF37;
+  border: 2px solid #D4AF37;
+}
+
+.btn-secondary:hover {
+  background: #D4AF37;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #666;
+}
+
+.empty-state h3 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.empty-state p {
+  margin-bottom: 2rem;
+}
+
 .transactions-card h3,
 .categories-card h3 {
   font-size: 1.3rem;
@@ -262,7 +340,7 @@
 
 .transaction-amount {
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
 }
 
 .transaction-amount.income {
@@ -293,6 +371,7 @@
 .category-amount {
   color: #D4AF37;
   font-weight: bold;
+  font-size: 1.1rem;
 }
 
 @media (max-width: 768px) {
@@ -320,7 +399,7 @@
   }
   
   .profile-trigger {
-    padding: 0.4rem 0.8rem;
+    padding: 0.25rem 0.5rem;
   }
   
   .profile-name {
