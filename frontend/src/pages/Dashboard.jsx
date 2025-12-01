@@ -19,7 +19,7 @@ function Dashboard() {
   const fetchTransactions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://moneymind-1-1jg4.onrender.com/api/transactions', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -77,7 +77,7 @@ function Dashboard() {
         return;
       }
 
-      const response = await fetch('https://moneymind-1-1jg4.onrender.com/api/profile', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

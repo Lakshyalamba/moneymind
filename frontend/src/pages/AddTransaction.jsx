@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/addTransaction.css';
 
 function AddTransaction() {
@@ -17,17 +18,36 @@ function AddTransaction() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Transaction added:', formData);
-    // Reset form
-    setFormData({
-      amount: '',
-      type: 'expense',
-      category: '',
-      date: new Date().toISOString().split('T')[0],
-      note: ''
-    });
+    setLoading(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (response.ok) {
+        alert('Transaction added successfully!');
+        navigate('/dashboard');
+      } else {
+        alert('Failed to add transaction');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error adding transaction');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -104,8 +124,8 @@ function AddTransaction() {
             />
           </div>
 
-          <button type="submit" className="submit-button">
-            Add Transaction
+          <button type="submit" className="submit-button" disabled={loading}>
+            {loading ? 'Adding...' : 'Add Transaction'}
           </button>
         </form>
       </div>

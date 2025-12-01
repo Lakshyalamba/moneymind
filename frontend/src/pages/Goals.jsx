@@ -20,7 +20,7 @@ function Goals() {
   const fetchGoals = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://moneymind-1-1jg4.onrender.com/api/goals', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/goals`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setGoals(response.data);
@@ -41,11 +41,11 @@ function Goals() {
     try {
       const token = localStorage.getItem('token');
       if (editingGoal) {
-        await axios.put(`https://moneymind-1-1jg4.onrender.com/api/goals/${editingGoal.id}`, formData, {
+        await axios.put(`${import.meta.env.VITE_API_URL}/api/goals/${editingGoal.id}`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await axios.post('https://moneymind-1-1jg4.onrender.com/api/goals', formData, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/goals`, formData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -70,7 +70,7 @@ function Goals() {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`https://moneymind-1-1jg4.onrender.com/api/goals/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/goals/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchGoals();

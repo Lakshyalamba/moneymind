@@ -23,7 +23,7 @@ function Transactions() {
   const fetchTransactions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('https://moneymind-1-1jg4.onrender.com/api/transactions', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/transactions`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTransactions(response.data);
@@ -56,7 +56,7 @@ function Transactions() {
     if (window.confirm('Are you sure you want to delete this transaction?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`https://moneymind-1-1jg4.onrender.com/api/transactions/${id}`, {
+        await axios.delete(`${import.meta.env.VITE_API_URL}/api/transactions/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchTransactions();
@@ -71,7 +71,7 @@ function Transactions() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`https://moneymind-1-1jg4.onrender.com/api/transactions/${editingTransaction.id}`, formData, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/transactions/${editingTransaction.id}`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchTransactions();

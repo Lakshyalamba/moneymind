@@ -99,4 +99,123 @@ router.get('/profile', authenticateToken, async (req, res) => {
   }
 });
 
+// Transaction routes
+router.get('/transactions', authenticateToken, async (req, res) => {
+  try {
+    const transactions = await prisma.transaction.findMany({
+      where: { userId: req.user.userId },
+      orderBy: { id: 'desc' }
+    });
+    res.json(transactions);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/transactions', authenticateToken, async (req, res) => {
+  try {
+    const { amount, type, category, note, date } = req.body;
+    const transaction = await prisma.transaction.create({
+      data: {
+        amount: parseFloat(amount),
+        type,
+        category,
+        note: note || '',
+        date,
+        userId: req.user.userId
+      }
+    });
+    res.status(201).json(transaction);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.put('/transactions/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { amount, type, category, note, date } = req.body;
+    const transaction = await prisma.transaction.update({
+      where: { id: parseInt(id), userId: req.user.userId },
+      data: {
+        amount: parseFloat(amount),
+        type,
+        category,
+        note: note || '',
+        date
+      }
+    });
+    res.json(transaction);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.delete('/transactions/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.transaction.delete({
+      where: { id: parseInt(id), userId: req.user.userId }
+    });
+    res.json({ message: 'Transaction deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Goal routes
+router.get('/goals', authenticateToken, async (req, res) => {
+  try {
+    const goals = await prisma.goal.findMany({
+      where: { userId: req.user.userId }
+    });
+    res.json(goals);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.post('/goals', authenticateToken, async (req, res) => {
+  try {
+    const { title, targetAmount, deadline } = req.body;
+    const goal = await prisma.goal.create({
+      data: {
+        title,
+        targetAmount: parseFloat(targetAmount),
+        deadline,
+        userId: req.user.userId
+      }
+    });
+    res.status(201).json(goal);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.put('/goals/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, targetAmount, currentAmount, deadline } = req.body;
+    const goal = await prisma.goal.update({
+      where: { id: parseInt(id), userId: req.user.userId },
+      data: { title, targetAmount: parseFloat(targetAmount), currentAmount: parseFloat(currentAmount || 0), deadline }
+    });
+    res.json(goal);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.delete('/goals/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.goal.delete({
+      where: { id: parseInt(id), userId: req.user.userId }
+    });
+    res.json({ message: 'Goal deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

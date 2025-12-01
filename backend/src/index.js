@@ -5,8 +5,9 @@ import authRoutes from './routes/authRoutes.js';
 const app = express();
 const PORT = process.env.PORT || 3333;
 app.use(cors({
-  origin: ["https://moneymind-1-1jg4.onrender.com"],
-  credentials: true
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use('/api', authRoutes);
