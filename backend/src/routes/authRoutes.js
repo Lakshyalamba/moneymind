@@ -104,10 +104,15 @@ router.get('/transactions', authenticateToken, async (req, res) => {
   try {
     const transactions = await prisma.transaction.findMany({
       where: { userId: req.user.userId },
-      orderBy: { id: 'desc' }
+      orderBy: { createdAt: 'desc' }
     });
-    res.json(transactions);
+    const formattedTransactions = transactions.map(t => ({
+      ...t,
+      amount: parseFloat(t.amount)
+    }));
+    res.json(formattedTransactions);
   } catch (error) {
+    console.error('Transactions fetch error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -117,7 +122,7 @@ router.post('/transactions', authenticateToken, async (req, res) => {
     const { amount, type, category, note, date } = req.body;
     const transaction = await prisma.transaction.create({
       data: {
-        amount: parseFloat(amount),
+        amount: amount.toString(),
         type,
         category,
         note: note || '',
@@ -125,8 +130,12 @@ router.post('/transactions', authenticateToken, async (req, res) => {
         userId: req.user.userId
       }
     });
-    res.status(201).json(transaction);
+    res.status(201).json({
+      ...transaction,
+      amount: parseFloat(transaction.amount)
+    });
   } catch (error) {
+    console.error('Transaction creation error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -136,17 +145,24 @@ router.put('/transactions/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { amount, type, category, note, date } = req.body;
     const transaction = await prisma.transaction.update({
-      where: { id: parseInt(id), userId: req.user.userId },
+      where: { 
+        id: parseInt(id),
+        userId: req.user.userId 
+      },
       data: {
-        amount: parseFloat(amount),
+        amount: amount.toString(),
         type,
         category,
         note: note || '',
         date
       }
     });
-    res.json(transaction);
+    res.json({
+      ...transaction,
+      amount: parseFloat(transaction.amount)
+    });
   } catch (error) {
+    console.error('Transaction update error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -167,10 +183,17 @@ router.delete('/transactions/:id', authenticateToken, async (req, res) => {
 router.get('/goals', authenticateToken, async (req, res) => {
   try {
     const goals = await prisma.goal.findMany({
-      where: { userId: req.user.userId }
+      where: { userId: req.user.userId },
+      orderBy: { createdAt: 'desc' }
     });
-    res.json(goals);
+    const formattedGoals = goals.map(g => ({
+      ...g,
+      targetAmount: parseFloat(g.targetAmount),
+      currentAmount: parseFloat(g.currentAmount)
+    }));
+    res.json(formattedGoals);
   } catch (error) {
+    console.error('Goals fetch error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -181,13 +204,18 @@ router.post('/goals', authenticateToken, async (req, res) => {
     const goal = await prisma.goal.create({
       data: {
         title,
-        targetAmount: parseFloat(targetAmount),
+        targetAmount: targetAmount.toString(),
         deadline,
         userId: req.user.userId
       }
     });
-    res.status(201).json(goal);
+    res.status(201).json({
+      ...goal,
+      targetAmount: parseFloat(goal.targetAmount),
+      currentAmount: parseFloat(goal.currentAmount)
+    });
   } catch (error) {
+    console.error('Goal creation error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -197,11 +225,24 @@ router.put('/goals/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { title, targetAmount, currentAmount, deadline } = req.body;
     const goal = await prisma.goal.update({
-      where: { id: parseInt(id), userId: req.user.userId },
-      data: { title, targetAmount: parseFloat(targetAmount), currentAmount: parseFloat(currentAmount || 0), deadline }
+      where: { 
+        id: parseInt(id),
+        userId: req.user.userId 
+      },
+      data: { 
+        title, 
+        targetAmount: targetAmount.toString(), 
+        currentAmount: (currentAmount || 0).toString(), 
+        deadline 
+      }
     });
-    res.json(goal);
+    res.json({
+      ...goal,
+      targetAmount: parseFloat(goal.targetAmount),
+      currentAmount: parseFloat(goal.currentAmount)
+    });
   } catch (error) {
+    console.error('Goal update error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
