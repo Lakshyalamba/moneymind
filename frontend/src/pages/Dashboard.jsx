@@ -66,7 +66,73 @@ function Dashboard() {
   useEffect(() => {
     fetchUserProfile();
     fetchTransactions();
+    initializeTools();
   }, []);
+
+  const initializeTools = () => {
+    // Currency Converter
+    const rupeesInput = document.getElementById('rupees');
+    const dollarsInput = document.getElementById('dollars');
+    const exchangeRate = 90.23;
+
+    if (rupeesInput && dollarsInput) {
+      rupeesInput.addEventListener('input', (e) => {
+        const rupees = parseFloat(e.target.value) || 0;
+        dollarsInput.value = (rupees / exchangeRate).toFixed(2);
+      });
+
+      dollarsInput.addEventListener('input', (e) => {
+        const dollars = parseFloat(e.target.value) || 0;
+        rupeesInput.value = (dollars * exchangeRate).toFixed(2);
+      });
+    }
+
+    // Calculator
+    let calcDisplay = '';
+    const display = document.getElementById('calc-display');
+    const buttons = document.querySelectorAll('.calc-btn');
+
+    buttons.forEach(button => {
+      button.addEventListener('click', () => {
+        const value = button.textContent;
+        
+        if (value === 'C') {
+          calcDisplay = '';
+        } else if (value === '=') {
+          try {
+            calcDisplay = eval(calcDisplay.replace(/×/g, '*').replace(/÷/g, '/')).toString();
+          } catch {
+            calcDisplay = 'Error';
+          }
+        } else {
+          calcDisplay += value;
+        }
+        
+        if (display) display.value = calcDisplay;
+      });
+    });
+
+    // SIP Calculator
+    const sipBtn = document.querySelector('.calc-sip-btn');
+    if (sipBtn) {
+      sipBtn.addEventListener('click', () => {
+        const amount = parseFloat(document.getElementById('sip-amount').value) || 0;
+        const rate = parseFloat(document.getElementById('sip-rate').value) || 0;
+        const years = parseFloat(document.getElementById('sip-years').value) || 0;
+        
+        const monthlyRate = rate / 12 / 100;
+        const months = years * 12;
+        const invested = amount * months;
+        
+        const futureValue = amount * (((1 + monthlyRate) ** months - 1) / monthlyRate) * (1 + monthlyRate);
+        const returns = futureValue - invested;
+        
+        document.getElementById('invested').textContent = `₹${invested.toLocaleString('en-IN')}`;
+        document.getElementById('returns').textContent = `₹${returns.toLocaleString('en-IN')}`;
+        document.getElementById('total').textContent = `₹${futureValue.toLocaleString('en-IN')}`;
+      });
+    }
+  };
 
   const fetchUserProfile = async () => {
     try {
@@ -207,11 +273,74 @@ function Dashboard() {
               <BarChart data={barData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
-                <YAxis />
+                <YAxis tickFormatter={(value) => `${(value/1000).toFixed(0)}k`} />
                 <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
                 <Bar dataKey="amount" fill="#D4AF37" />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        </section>
+
+        <section className="tools-section">
+          <h2 className="section-title">Financial Tools</h2>
+          <div className="tools-grid">
+            <div className="tool-card">
+              <h3>Currency Converter</h3>
+              <div className="converter-inputs">
+                <div className="input-group">
+                  <input type="number" id="rupees" placeholder="Rupees" className="tool-input" />
+                  <span>₹</span>
+                </div>
+                <div className="input-group">
+                  <input type="number" id="dollars" placeholder="Dollars" className="tool-input" />
+                  <span>$</span>
+                </div>
+              </div>
+              <p className="rate">1 USD = ₹90.23</p>
+            </div>
+
+            <div className="tool-card">
+              <h3>Calculator</h3>
+              <div className="calculator">
+                <input type="text" id="calc-display" className="calc-display" readOnly />
+                <div className="calc-buttons">
+                  <button className="calc-btn clear">C</button>
+                  <button className="calc-btn">±</button>
+                  <button className="calc-btn">%</button>
+                  <button className="calc-btn operator">÷</button>
+                  <button className="calc-btn">7</button>
+                  <button className="calc-btn">8</button>
+                  <button className="calc-btn">9</button>
+                  <button className="calc-btn operator">×</button>
+                  <button className="calc-btn">4</button>
+                  <button className="calc-btn">5</button>
+                  <button className="calc-btn">6</button>
+                  <button className="calc-btn operator">-</button>
+                  <button className="calc-btn">1</button>
+                  <button className="calc-btn">2</button>
+                  <button className="calc-btn">3</button>
+                  <button className="calc-btn operator">+</button>
+                  <button className="calc-btn zero">0</button>
+                  <button className="calc-btn">.</button>
+                  <button className="calc-btn equals">=</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="tool-card">
+              <h3>SIP Calculator</h3>
+              <div className="sip-inputs">
+                <input type="number" id="sip-amount" placeholder="Monthly Investment" className="tool-input" />
+                <input type="number" id="sip-rate" placeholder="Annual Return (%)" className="tool-input" />
+                <input type="number" id="sip-years" placeholder="Years" className="tool-input" />
+                <button className="calc-sip-btn">Calculate</button>
+              </div>
+              <div className="sip-result">
+                <p>Invested: <span id="invested">₹0</span></p>
+                <p>Returns: <span id="returns">₹0</span></p>
+                <p>Total: <span id="total">₹0</span></p>
+              </div>
+            </div>
           </div>
         </section>
 

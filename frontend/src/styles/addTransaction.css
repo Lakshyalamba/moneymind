@@ -100,16 +100,46 @@
   box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
 }
 
+@media (max-width: 1024px) {
+  .form-container {
+    max-width: 600px;
+  }
+}
+
 @media (max-width: 768px) {
   .add-transaction-page {
     padding: 1rem;
+  }
+  
+  .page-header {
+    margin-bottom: 2rem;
   }
   
   .page-header h1 {
     font-size: 2rem;
   }
   
+  .page-header p {
+    font-size: 1rem;
+  }
+  
   .transaction-form {
     padding: 2rem 1.5rem;
+  }
+  
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .transaction-form {
+    padding: 1.5rem 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 1.8rem;
   }
 }

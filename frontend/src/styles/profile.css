@@ -235,6 +235,12 @@
   transform: translateY(-2px);
 }
 
+@media (max-width: 1024px) {
+  .profile-container {
+    max-width: 500px;
+  }
+}
+
 @media (max-width: 768px) {
   .profile-page {
     padding: 1rem;
@@ -265,5 +271,20 @@
   
   .form-actions {
     flex-direction: column;
+  }
+  
+  .form-input,
+  .form-textarea {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 1.8rem;
   }
 }
