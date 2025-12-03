@@ -14,7 +14,7 @@
 .dashboard-header {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
-  padding: 0.8rem 2rem;
+  padding: 1.2rem 2rem;
   box-shadow: 0 2px 15px rgba(212, 175, 55, 0.1);
   border-bottom: 1px solid rgba(212, 175, 55, 0.15);
   position: sticky;
@@ -37,7 +37,7 @@
 }
 
 .dashboard-header h1 {
-  font-size: 1.8rem;
+  font-size: 2rem;
   color: #D4AF37;
   font-weight: 600;
 }
@@ -48,13 +48,13 @@
 }
 
 .nav-link {
-  padding: 0.6rem 1.2rem;
+  padding: 0.75rem 1.5rem;
   background: linear-gradient(135deg, #D4AF37, #F4E4BC);
   color: white;
   text-decoration: none;
   border-radius: 8px;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
 }
@@ -566,7 +566,10 @@
   margin-bottom: 1.5rem;
 }
 
-.calc-sip-btn {
+.calc-sip-btn,
+.calc-emi-btn,
+.calc-fd-btn,
+.calc-gst-btn {
   padding: 0.75rem;
   background: linear-gradient(135deg, #D4AF37, #F4E4BC);
   color: white;
@@ -577,7 +580,10 @@
   transition: all 0.3s ease;
 }
 
-.calc-sip-btn:hover {
+.calc-sip-btn:hover,
+.calc-emi-btn:hover,
+.calc-fd-btn:hover,
+.calc-gst-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
 }

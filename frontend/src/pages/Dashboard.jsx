@@ -341,6 +341,55 @@ function Dashboard() {
                 <p>Total: <span id="total">₹0</span></p>
               </div>
             </div>
+
+            <div className="tool-card">
+              <h3>EMI Calculator</h3>
+              <div className="sip-inputs">
+                <input type="number" id="loan-amount" placeholder="Loan Amount" className="tool-input" />
+                <input type="number" id="loan-rate" placeholder="Interest Rate (%)" className="tool-input" />
+                <input type="number" id="loan-tenure" placeholder="Tenure (Years)" className="tool-input" />
+                <button className="calc-emi-btn">Calculate EMI</button>
+              </div>
+              <div className="sip-result">
+                <p>Monthly EMI: <span id="emi-amount">₹0</span></p>
+                <p>Total Interest: <span id="total-interest">₹0</span></p>
+                <p>Total Payment: <span id="total-payment">₹0</span></p>
+              </div>
+            </div>
+
+            <div className="tool-card">
+              <h3>FD Calculator</h3>
+              <div className="sip-inputs">
+                <input type="number" id="fd-amount" placeholder="Principal Amount" className="tool-input" />
+                <input type="number" id="fd-rate" placeholder="Interest Rate (%)" className="tool-input" />
+                <input type="number" id="fd-years" placeholder="Years" className="tool-input" />
+                <button className="calc-fd-btn">Calculate FD</button>
+              </div>
+              <div className="sip-result">
+                <p>Principal: <span id="fd-principal">₹0</span></p>
+                <p>Interest: <span id="fd-interest">₹0</span></p>
+                <p>Maturity: <span id="fd-maturity">₹0</span></p>
+              </div>
+            </div>
+
+            <div className="tool-card">
+              <h3>GST Calculator</h3>
+              <div className="sip-inputs">
+                <input type="number" id="gst-amount" placeholder="Amount" className="tool-input" />
+                <select id="gst-rate" className="tool-input">
+                  <option value="5">5% GST</option>
+                  <option value="12">12% GST</option>
+                  <option value="18" selected>18% GST</option>
+                  <option value="28">28% GST</option>
+                </select>
+                <button className="calc-gst-btn">Calculate GST</button>
+              </div>
+              <div className="sip-result">
+                <p>Base Amount: <span id="base-amount">₹0</span></p>
+                <p>GST Amount: <span id="gst-tax">₹0</span></p>
+                <p>Total Amount: <span id="total-with-gst">₹0</span></p>
+              </div>
+            </div>
           </div>
         </section>
 
