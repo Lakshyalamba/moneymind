@@ -11,6 +11,8 @@ function Transactions() {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [order, setOrder] = useState('desc');
   const [formData, setFormData] = useState({
     amount: '',
     type: 'expense',
@@ -21,12 +23,12 @@ function Transactions() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [page]);
+  }, [page, sortBy, order]);
 
   const fetchTransactions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/transactions?page=${page}&limit=${limit}`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/transactions?page=${page}&limit=${limit}&sortBy=${sortBy}&order=${order}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -102,6 +104,21 @@ function Transactions() {
     });
   };
 
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setOrder(order === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setOrder('asc');
+    }
+    setPage(1);
+  };
+
+  const getSortIcon = (field) => {
+    if (sortBy !== field) return '⇅';
+    return order === 'asc' ? '↑' : '↓';
+  };
+
   const filteredTransactions = transactions.filter(transaction => {
     const matchesSearch = transaction.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          transaction.note.toLowerCase().includes(searchTerm.toLowerCase());
@@ -155,8 +172,12 @@ function Transactions() {
           <div className="table-header">
             <div className="header-cell">Type</div>
             <div className="header-cell">Category</div>
-            <div className="header-cell">Amount</div>
-            <div className="header-cell">Date</div>
+            <div className={`header-cell sortable ${sortBy === 'amount' ? 'active' : ''}`} onClick={() => handleSort('amount')}>
+              Amount {getSortIcon('amount')}
+            </div>
+            <div className={`header-cell sortable ${sortBy === 'date' ? 'active' : ''}`} onClick={() => handleSort('date')}>
+              Date {getSortIcon('date')}
+            </div>
             <div className="header-cell">Note</div>
             <div className="header-cell">Actions</div>
           </div>
