@@ -110,22 +110,6 @@
   text-align: left;
 }
 
-.header-cell.sortable {
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.header-cell.sortable:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.header-cell.sortable.active {
-  background: rgba(255, 255, 255, 0.3);
-  font-weight: 700;
-}
-
 .table-body {
   display: flex;
   flex-direction: column;

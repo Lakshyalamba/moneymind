@@ -102,37 +102,15 @@ router.get('/profile', authenticateToken, async (req, res) => {
 // Transaction routes
 router.get('/transactions', authenticateToken, async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-    const sortBy = req.query.sortBy || 'createdAt';
-    const order = req.query.order || 'desc';
-
-    const [transactions, total] = await Promise.all([
-      prisma.transaction.findMany({
-        where: { userId: req.user.userId },
-        orderBy: { [sortBy]: order },
-        skip,
-        take: limit
-      }),
-      prisma.transaction.count({
-        where: { userId: req.user.userId }
-      })
-    ]);
-
+    const transactions = await prisma.transaction.findMany({
+      where: { userId: req.user.userId },
+      orderBy: { createdAt: 'desc' }
+    });
     const formattedTransactions = transactions.map(t => ({
       ...t,
       amount: parseFloat(t.amount)
     }));
-
-    res.json({
-      data: formattedTransactions,
-      meta: {
-        page,
-        pages: Math.ceil(total / limit),
-        total
-      }
-    });
+    res.json(formattedTransactions);
   } catch (error) {
     console.error('Transactions fetch error:', error);
     res.status(500).json({ error: 'Internal server error' });
