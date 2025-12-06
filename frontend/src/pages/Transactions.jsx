@@ -8,6 +8,9 @@ function Transactions() {
   const [filter, setFilter] = useState('all');
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
   const [formData, setFormData] = useState({
     amount: '',
     type: 'expense',
@@ -18,15 +21,21 @@ function Transactions() {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [page]);
 
   const fetchTransactions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/transactions`, {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/transactions?page=${page}&limit=${limit}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setTransactions(response.data);
+      
+      if (response.data.meta) {
+        setTransactions(response.data.data);
+        setTotalPages(response.data.meta.pages);
+      } else {
+        setTransactions(response.data);
+      }
     } catch (error) {
       console.error('Error fetching transactions:', error);
       setTransactions([
@@ -180,6 +189,40 @@ function Transactions() {
             <p>No transactions found matching your criteria.</p>
           </div>
         )}
+
+        <div className="pagination">
+          <button 
+            className="pagination-btn" 
+            onClick={() => setPage(page - 1)} 
+            disabled={page === 1}
+          >
+            Previous
+          </button>
+          
+          <div className="page-info">
+            <span>Page {page} of {totalPages}</span>
+          </div>
+          
+          <div className="page-numbers">
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index + 1}
+                className={`page-number ${page === index + 1 ? 'active' : ''}`}
+                onClick={() => setPage(index + 1)}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+          
+          <button 
+            className="pagination-btn" 
+            onClick={() => setPage(page + 1)} 
+            disabled={page === totalPages}
+          >
+            Next
+          </button>
+        </div>
 
         {showEditModal && (
           <div className="edit-modal">

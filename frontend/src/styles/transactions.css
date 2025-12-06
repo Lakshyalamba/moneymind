@@ -304,6 +304,81 @@
   color: #D4AF37;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #FFFFFF;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.pagination-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #D4AF37, #F4E4BC);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+}
+
+.pagination-btn:disabled {
+  background: #e8e8e8;
+  color: #999;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.page-info {
+  font-weight: 600;
+  color: #333;
+  padding: 0 1rem;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.page-number {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #e8e8e8;
+  background: #FFFFFF;
+  color: #666;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-number:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.page-number.active {
+  background: linear-gradient(135deg, #D4AF37, #F4E4BC);
+  color: white;
+  border-color: #D4AF37;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
 @media (max-width: 1024px) {
   .transactions-container {
     padding: 0 1rem;
@@ -380,5 +455,34 @@
   
   .actions-cell {
     justify-content: center;
+  }
+  
+  .pagination {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .pagination-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .page-numbers {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+  
+  .page-number {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+  
+  .page-info {
+    order: 2;
+    font-size: 0.9rem;
   }
 }
