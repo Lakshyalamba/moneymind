@@ -13,6 +13,10 @@ model User {
   name         String
   email        String        @unique
   password     String
+  profilePhoto String?
+  phone        String?
+  bio          String?
+  refreshToken String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   transactions Transaction[]

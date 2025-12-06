@@ -7,7 +7,7 @@ function Goals() {
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
+    title: '',
     targetAmount: '',
     currentAmount: '',
     deadline: ''
@@ -59,7 +59,7 @@ function Goals() {
   const handleEdit = (goal) => {
     setEditingGoal(goal);
     setFormData({
-      name: goal.name,
+      title: goal.title,
       targetAmount: goal.targetAmount,
       currentAmount: goal.currentAmount,
       deadline: goal.deadline
@@ -80,7 +80,7 @@ function Goals() {
   };
 
   const resetForm = () => {
-    setFormData({ name: '', targetAmount: '', currentAmount: '', deadline: '' });
+    setFormData({ title: '', targetAmount: '', currentAmount: '', deadline: '' });
     setShowForm(false);
     setEditingGoal(null);
   };
@@ -111,8 +111,8 @@ function Goals() {
                 <label>Goal Name</label>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="title"
+                  value={formData.title}
                   onChange={handleInputChange}
                   required
                 />
@@ -166,7 +166,7 @@ function Goals() {
         {goals.map((goal) => (
           <div key={goal.id} className="goal-card">
             <div className="goal-header">
-              <h3>{goal.name}</h3>
+              <h3>{goal.title}</h3>
               <div className="goal-actions">
                 <button onClick={() => handleEdit(goal)} className="edit-btn">✏️</button>
                 <button onClick={() => handleDelete(goal.id)} className="delete-btn">🗑️</button>
