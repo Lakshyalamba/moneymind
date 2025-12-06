@@ -129,7 +129,7 @@ function Signup() {
         </div>
 
         <button 
-          onClick={() => window.location.href = 'http://localhost:3333/api/auth/google'}
+          onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`}
           className="google-button"
         >
           <svg className="google-icon" viewBox="0 0 24 24">
