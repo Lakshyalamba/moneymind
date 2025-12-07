@@ -131,6 +131,60 @@ function Dashboard() {
         document.getElementById('total').textContent = `₹${futureValue.toLocaleString('en-IN')}`;
       });
     }
+
+    // EMI Calculator
+    const emiBtn = document.querySelector('.calc-emi-btn');
+    if (emiBtn) {
+      emiBtn.addEventListener('click', () => {
+        const principal = parseFloat(document.getElementById('loan-amount').value) || 0;
+        const rate = parseFloat(document.getElementById('loan-rate').value) || 0;
+        const tenure = parseFloat(document.getElementById('loan-tenure').value) || 0;
+        
+        const monthlyRate = rate / 12 / 100;
+        const months = tenure * 12;
+        
+        const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+        const totalPayment = emi * months;
+        const totalInterest = totalPayment - principal;
+        
+        document.getElementById('emi-amount').textContent = `₹${emi.toLocaleString('en-IN')}`;
+        document.getElementById('total-interest').textContent = `₹${totalInterest.toLocaleString('en-IN')}`;
+        document.getElementById('total-payment').textContent = `₹${totalPayment.toLocaleString('en-IN')}`;
+      });
+    }
+
+    // FD Calculator
+    const fdBtn = document.querySelector('.calc-fd-btn');
+    if (fdBtn) {
+      fdBtn.addEventListener('click', () => {
+        const principal = parseFloat(document.getElementById('fd-amount').value) || 0;
+        const rate = parseFloat(document.getElementById('fd-rate').value) || 0;
+        const years = parseFloat(document.getElementById('fd-years').value) || 0;
+        
+        const maturityAmount = principal * Math.pow(1 + rate / 100, years);
+        const interest = maturityAmount - principal;
+        
+        document.getElementById('fd-principal').textContent = `₹${principal.toLocaleString('en-IN')}`;
+        document.getElementById('fd-interest').textContent = `₹${interest.toLocaleString('en-IN')}`;
+        document.getElementById('fd-maturity').textContent = `₹${maturityAmount.toLocaleString('en-IN')}`;
+      });
+    }
+
+    // GST Calculator
+    const gstBtn = document.querySelector('.calc-gst-btn');
+    if (gstBtn) {
+      gstBtn.addEventListener('click', () => {
+        const amount = parseFloat(document.getElementById('gst-amount').value) || 0;
+        const gstRate = parseFloat(document.getElementById('gst-rate').value) || 0;
+        
+        const gstAmount = (amount * gstRate) / 100;
+        const totalAmount = amount + gstAmount;
+        
+        document.getElementById('base-amount').textContent = `₹${amount.toLocaleString('en-IN')}`;
+        document.getElementById('gst-tax').textContent = `₹${gstAmount.toLocaleString('en-IN')}`;
+        document.getElementById('total-with-gst').textContent = `₹${totalAmount.toLocaleString('en-IN')}`;
+      });
+    }
   };
 
   const fetchUserProfile = async () => {
