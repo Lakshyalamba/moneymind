@@ -39,6 +39,60 @@
   align-items: center;
   margin-bottom: 2rem;
   gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-input, .filter-select, .sort-select, .sort-order-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #FFFFFF;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-select, .sort-select, .sort-order-select {
+  min-width: 120px;
+}
+
+.search-input:focus, .filter-select:focus, .sort-select:focus, .sort-order-select:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.page-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e8e8e8;
+  background: #FFFFFF;
+  color: #666;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: #D4AF37;
+  color: #D4AF37;
+}
+
+.page-btn.active {
+  background: linear-gradient(135deg, #D4AF37, #F4E4BC);
+  color: white;
+  border-color: #D4AF37;
+}
+
+.page-btn:disabled {
+  background: #f5f5f5;
+  color: #ccc;
+  cursor: not-allowed;
+  border-color: #e8e8e8;
 }
 
 .search-bar {
@@ -65,6 +119,36 @@
 .filter-buttons {
   display: flex;
   gap: 0.5rem;
+}
+
+.sort-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.sort-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e8e8e8;
+  background: #FFFFFF;
+  color: #666;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.9rem;
+  min-width: 140px;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.sort-select:hover {
+  border-color: #D4AF37;
+  color: #D4AF37;
 }
 
 .filter-btn {
@@ -308,13 +392,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   margin-top: 2rem;
   padding: 1.5rem;
   background: #FFFFFF;
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(212, 175, 55, 0.1);
   border: 1px solid rgba(212, 175, 55, 0.1);
+  flex-wrap: wrap;
 }
 
 .pagination-btn {
@@ -416,6 +501,16 @@
   .filter-btn {
     flex: 1;
     min-width: 80px;
+  }
+  
+  .sort-controls {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .sort-select {
+    flex: 1;
+    min-width: 120px;
   }
   
   .transactions-table {

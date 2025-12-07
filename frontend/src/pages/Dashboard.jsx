@@ -19,15 +19,16 @@ function Dashboard() {
 
   const fetchTransactions = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions`);
+      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions?limit=100`);
       
       if (response.ok) {
         const data = await response.json();
-        setTransactions(data);
+        const transactionsList = data.transactions || [];
+        setTransactions(transactionsList);
         
         // Calculate summary
-        const income = data.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-        const expense = data.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+        const income = transactionsList.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+        const expense = transactionsList.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
         setSummaryData({
           income,
           expense,
@@ -53,7 +54,7 @@ function Dashboard() {
     { month: 'Jun', amount: 380000 }
   ];
 
-  const recentTransactions = transactions.slice(0, 5).map(t => ({
+  const recentTransactions = (transactions || []).slice(0, 5).map(t => ({
     id: t.id,
     description: t.category,
     amount: t.type === 'income' ? t.amount : -t.amount,

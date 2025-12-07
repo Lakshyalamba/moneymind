@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { apiRequest } from '../utils/auth';
 import '../styles/goals.css';
 
 function Goals() {
+  const navigate = useNavigate();
   const [goals, setGoals] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
@@ -19,13 +21,16 @@ function Goals() {
 
   const fetchGoals = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/goals`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setGoals(response.data);
+      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/goals`);
+      if (response.ok) {
+        const data = await response.json();
+        setGoals(data);
+      } else if (response.status === 401) {
+        navigate('/login');
+      }
     } catch (error) {
       console.error('Error fetching goals:', error);
+      navigate('/login');
     }
   };
 
@@ -39,18 +44,25 @@ function Goals() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
+      let response;
       if (editingGoal) {
-        await axios.put(`${import.meta.env.VITE_API_URL}/api/goals/${editingGoal.id}`, formData, {
-          headers: { Authorization: `Bearer ${token}` }
+        response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/goals/${editingGoal.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(formData)
         });
       } else {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/goals`, formData, {
-          headers: { Authorization: `Bearer ${token}` }
+        response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/goals`, {
+          method: 'POST',
+          body: JSON.stringify(formData)
         });
       }
-      fetchGoals();
-      resetForm();
+      
+      if (response.ok) {
+        fetchGoals();
+        resetForm();
+      } else if (response.status === 401) {
+        navigate('/login');
+      }
     } catch (error) {
       console.error('Error saving goal:', error);
     }
@@ -69,11 +81,12 @@ function Goals() {
 
   const handleDelete = async (id) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/goals/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/goals/${id}`, {
+        method: 'DELETE'
       });
-      fetchGoals();
+      if (response.ok) {
+        fetchGoals();
+      }
     } catch (error) {
       console.error('Error deleting goal:', error);
     }

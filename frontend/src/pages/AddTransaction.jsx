@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiRequest } from '../utils/auth';
 import '../styles/addTransaction.css';
 
 function AddTransaction() {
@@ -26,19 +27,16 @@ function AddTransaction() {
     setLoading(true);
     
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions`, {
+      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify(formData)
       });
       
       if (response.ok) {
         alert('Transaction added successfully!');
         navigate('/dashboard');
+      } else if (response.status === 401) {
+        navigate('/login');
       } else {
         alert('Failed to add transaction');
       }

@@ -213,15 +213,53 @@ router.get('/profile', authenticateToken, async (req, res) => {
 // Transaction routes
 router.get('/transactions', authenticateToken, async (req, res) => {
   try {
+    const { search = '', filter = 'all', sortBy = 'date', sortOrder = 'desc', page = 1, limit = 7 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Build where clause
+    const where = {
+      userId: req.user.userId,
+      ...(search && {
+        OR: [
+          { category: { contains: search, mode: 'insensitive' } },
+          { note: { contains: search, mode: 'insensitive' } }
+        ]
+      }),
+      ...(filter !== 'all' && { type: filter })
+    };
+    
+    // Build orderBy clause
+    const orderBy = {};
+    if (sortBy === 'date') {
+      orderBy.date = sortOrder;
+    } else if (sortBy === 'amount') {
+      orderBy.amount = sortOrder;
+    } else {
+      orderBy.createdAt = sortOrder;
+    }
+    
+    const totalCount = await prisma.transaction.count({ where });
+    
     const transactions = await prisma.transaction.findMany({
-      where: { userId: req.user.userId },
-      orderBy: { createdAt: 'desc' }
+      where,
+      orderBy,
+      skip,
+      take: parseInt(limit)
     });
+    
     const formattedTransactions = transactions.map(t => ({
       ...t,
       amount: parseFloat(t.amount)
     }));
-    res.json(formattedTransactions);
+    
+    const totalPages = Math.ceil(totalCount / parseInt(limit));
+    
+    res.json({
+      transactions: formattedTransactions,
+      totalPages,
+      currentPage: parseInt(page),
+      totalCount
+    });
   } catch (error) {
     console.error('Transactions fetch error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -311,11 +349,12 @@ router.get('/goals', authenticateToken, async (req, res) => {
 
 router.post('/goals', authenticateToken, async (req, res) => {
   try {
-    const { title, targetAmount, deadline } = req.body;
+    const { title, targetAmount, currentAmount, deadline } = req.body;
     const goal = await prisma.goal.create({
       data: {
         title,
         targetAmount: targetAmount.toString(),
+        currentAmount: (currentAmount || 0).toString(),
         deadline,
         userId: req.user.userId
       }

@@ -1,16 +1,13 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { apiRequest } from '../utils/auth';
 import '../styles/transactions.css';
 
 function Transactions() {
+  const navigate = useNavigate();
   const [transactions, setTransactions] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('all');
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
   const [formData, setFormData] = useState({
     amount: '',
     type: 'expense',
@@ -18,34 +15,43 @@ function Transactions() {
     date: '',
     note: ''
   });
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 7;
 
   useEffect(() => {
     fetchTransactions();
-  }, [page]);
+  }, [search, filter, sortBy, sortOrder, currentPage]);
 
   const fetchTransactions = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/transactions?page=${page}&limit=${limit}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const params = new URLSearchParams({
+        page: currentPage,
+        limit,
+        search,
+        filter,
+        sortBy,
+        sortOrder
       });
       
-      if (response.data.meta) {
-        setTransactions(response.data.data);
-        setTotalPages(response.data.meta.pages);
+      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions?${params}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setTransactions(data.transactions);
+        setTotalPages(data.totalPages);
+      } else if (response.status === 401) {
+        navigate('/login');
       } else {
-        setTransactions(response.data);
+        setTransactions([]);
       }
     } catch (error) {
       console.error('Error fetching transactions:', error);
-      setTransactions([
-        { id: 1, type: 'income', category: 'Salary', amount: 350000, date: '2024-01-15', note: 'Monthly salary payment' },
-        { id: 2, type: 'expense', category: 'Food', amount: 12050, date: '2024-01-14', note: 'Grocery shopping' },
-        { id: 3, type: 'expense', category: 'Transport', amount: 4500, date: '2024-01-13', note: 'Gas station' },
-        { id: 4, type: 'income', category: 'Freelance', amount: 80000, date: '2024-01-12', note: 'Web design project' },
-        { id: 5, type: 'expense', category: 'Bills', amount: 8530, date: '2024-01-11', note: 'Electricity bill' },
-        { id: 6, type: 'expense', category: 'Shopping', amount: 25000, date: '2024-01-10', note: 'Clothing purchase' }
-      ]);
+      navigate('/login');
     }
   };
 
@@ -64,14 +70,14 @@ function Transactions() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this transaction?')) {
       try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`${import.meta.env.VITE_API_URL}/api/transactions/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
+        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions/${id}`, {
+          method: 'DELETE'
         });
-        fetchTransactions();
+        if (response.ok) {
+          fetchTransactions();
+        }
       } catch (error) {
         console.error('Error deleting transaction:', error);
-        setTransactions(transactions.filter(t => t.id !== id));
       }
     }
   };
@@ -79,18 +85,17 @@ function Transactions() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/transactions/${editingTransaction.id}`, formData, {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions/${editingTransaction.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(formData)
       });
-      fetchTransactions();
-      setShowEditModal(false);
-      setEditingTransaction(null);
+      if (response.ok) {
+        fetchTransactions();
+        setShowEditModal(false);
+        setEditingTransaction(null);
+      }
     } catch (error) {
       console.error('Error updating transaction:', error);
-      setTransactions(transactions.map(t => 
-        t.id === editingTransaction.id ? { ...t, ...formData } : t
-      ));
       setShowEditModal(false);
     }
   };
@@ -102,13 +107,7 @@ function Transactions() {
     });
   };
 
-  const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = transaction.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         transaction.note.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (filter === 'all') return matchesSearch;
-    return matchesSearch && transaction.type === filter;
-  });
+
 
   return (
     <div className="transactions-page">
@@ -119,36 +118,29 @@ function Transactions() {
 
       <div className="transactions-container">
         <div className="controls">
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search transactions..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
+          <input
+            type="text"
+            placeholder="Search transactions..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="search-input"
+          />
           
-          <div className="filter-buttons">
-            <button 
-              className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-              onClick={() => setFilter('all')}
-            >
-              All
-            </button>
-            <button 
-              className={`filter-btn ${filter === 'income' ? 'active' : ''}`}
-              onClick={() => setFilter('income')}
-            >
-              Income
-            </button>
-            <button 
-              className={`filter-btn ${filter === 'expense' ? 'active' : ''}`}
-              onClick={() => setFilter('expense')}
-            >
-              Expense
-            </button>
-          </div>
+          <select value={filter} onChange={(e) => setFilter(e.target.value)} className="filter-select">
+            <option value="all">All</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+          
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
+            <option value="date">Sort by Date</option>
+            <option value="amount">Sort by Amount</option>
+          </select>
+          
+          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="sort-order-select">
+            <option value="desc">High to Low</option>
+            <option value="asc">Low to High</option>
+          </select>
         </div>
 
         <div className="transactions-table">
@@ -162,7 +154,7 @@ function Transactions() {
           </div>
           
           <div className="table-body">
-            {filteredTransactions.map((transaction) => (
+            {transactions && transactions.map((transaction) => (
               <div key={transaction.id} className={`table-row ${transaction.type}`}>
                 <div className="table-cell type-cell">
                   <span className={`type-badge ${transaction.type}`}>
@@ -184,45 +176,55 @@ function Transactions() {
           </div>
         </div>
 
-        {filteredTransactions.length === 0 && (
+        {transactions && transactions.length === 0 && (
           <div className="no-results">
-            <p>No transactions found matching your criteria.</p>
+            <p>No transactions found.</p>
           </div>
         )}
 
-        <div className="pagination">
-          <button 
-            className="pagination-btn" 
-            onClick={() => setPage(page - 1)} 
-            disabled={page === 1}
-          >
-            Previous
-          </button>
-          
-          <div className="page-info">
-            <span>Page {page} of {totalPages}</span>
-          </div>
-          
-          <div className="page-numbers">
-            {[...Array(totalPages)].map((_, index) => (
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button 
+              onClick={() => setCurrentPage(1)} 
+              disabled={currentPage === 1}
+              className="page-btn"
+            >
+              First
+            </button>
+            <button 
+              onClick={() => setCurrentPage(currentPage - 1)} 
+              disabled={currentPage === 1}
+              className="page-btn"
+            >
+              Previous
+            </button>
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
               <button
-                key={index + 1}
-                className={`page-number ${page === index + 1 ? 'active' : ''}`}
-                onClick={() => setPage(index + 1)}
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`page-btn ${currentPage === page ? 'active' : ''}`}
               >
-                {index + 1}
+                {page}
               </button>
             ))}
+            
+            <button 
+              onClick={() => setCurrentPage(currentPage + 1)} 
+              disabled={currentPage === totalPages}
+              className="page-btn"
+            >
+              Next
+            </button>
+            <button 
+              onClick={() => setCurrentPage(totalPages)} 
+              disabled={currentPage === totalPages}
+              className="page-btn"
+            >
+              Last
+            </button>
           </div>
-          
-          <button 
-            className="pagination-btn" 
-            onClick={() => setPage(page + 1)} 
-            disabled={page === totalPages}
-          >
-            Next
-          </button>
-        </div>
+        )}
 
         {showEditModal && (
           <div className="edit-modal">
