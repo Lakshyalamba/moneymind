@@ -61,6 +61,8 @@ The frontend will run on `http://localhost:5173`
 
 - **Signup**: Create new user accounts with name, email, and password
 - **Login**: Authenticate existing users
+- **Google OAuth**: Sign in/up with Google account
+- **JWT Authentication**: Access and refresh tokens with httpOnly cookies
 - **Password Security**: Passwords are hashed using bcryptjs
 - **Form Validation**: Client-side validation for required fields and email format
 - **Responsive Design**: Clean, centered card layout with basic CSS
@@ -69,6 +71,10 @@ The frontend will run on `http://localhost:5173`
 
 - `POST /api/signup` - Create new user account
 - `POST /api/login` - Authenticate user
+- `GET /api/auth/google` - Initiate Google OAuth
+- `GET /api/auth/google/callback` - Google OAuth callback
+- `POST /api/auth/refresh-token` - Refresh access token
+- `POST /api/auth/logout` - Logout and clear cookies
 
 ## Tech Stack
 
@@ -77,4 +83,5 @@ The frontend will run on `http://localhost:5173`
 - **Database**: MySQL
 - **ORM**: Prisma
 - **Styling**: Pure CSS
-- **Security**: bcryptjs for password hashing
+- **Security**: bcryptjs for password hashing, Passport.js for OAuth
+- **Authentication**: JWT tokens with httpOnly cookies

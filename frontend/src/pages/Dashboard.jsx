@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { apiRequest, logout } from '../utils/auth';
 import '../styles/dashboard.css';
 
 function Dashboard() {
@@ -18,10 +19,7 @@ function Dashboard() {
 
   const fetchTransactions = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions`);
       
       if (response.ok) {
         const data = await response.json();
@@ -136,28 +134,15 @@ function Dashboard() {
 
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/profile`);
 
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
       } else {
-        localStorage.removeItem('token');
         navigate('/login');
       }
     } catch (error) {
-      localStorage.removeItem('token');
       navigate('/login');
     } finally {
       setLoading(false);
@@ -165,8 +150,7 @@ function Dashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+    logout();
   };
 
   const getInitial = (name) => {
@@ -376,10 +360,10 @@ function Dashboard() {
               <h3>GST Calculator</h3>
               <div className="sip-inputs">
                 <input type="number" id="gst-amount" placeholder="Amount" className="tool-input" />
-                <select id="gst-rate" className="tool-input">
+                <select id="gst-rate" className="tool-input" defaultValue="18">
                   <option value="5">5% GST</option>
                   <option value="12">12% GST</option>
-                  <option value="18" selected>18% GST</option>
+                  <option value="18">18% GST</option>
                   <option value="28">28% GST</option>
                 </select>
                 <button className="calc-gst-btn">Calculate GST</button>

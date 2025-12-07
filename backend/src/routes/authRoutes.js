@@ -1,11 +1,132 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import passport from 'passport';
 import { PrismaClient } from '@prisma/client';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
+
+const generateTokens = (user) => {
+  const accessToken = jwt.sign(
+    { userId: user.id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+  const refreshToken = jwt.sign(
+    { userId: user.id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: '30d' }
+  );
+  return { accessToken, refreshToken };
+};
+
+const setTokenCookies = (res, accessToken, refreshToken) => {
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000
+  });
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000
+  });
+};
+
+// Google OAuth routes
+router.get('/auth/google', (req, res, next) => {
+  const authOptions = {
+    scope: ['profile', 'email']
+  };
+  
+  // Force re-authentication if logout parameter is present
+  if (req.query.prompt === 'select_account') {
+    authOptions.prompt = 'select_account';
+  }
+  
+  passport.authenticate('google', authOptions)(req, res, next);
+});
+
+router.get('/auth/google/callback', 
+  passport.authenticate('google', { session: false }),
+  async (req, res) => {
+    try {
+      const { accessToken, refreshToken } = generateTokens(req.user);
+      
+      await prisma.user.update({
+        where: { id: req.user.id },
+        data: { refreshToken }
+      });
+
+      setTokenCookies(res, accessToken, refreshToken);
+      res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    } catch (error) {
+      res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
+    }
+  }
+);
+
+router.post('/auth/refresh-token', async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+    
+    if (!refreshToken) {
+      return res.status(401).json({ error: 'No refresh token provided' });
+    }
+
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId, refreshToken }
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid refresh token' });
+    }
+
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
+    
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken: newRefreshToken }
+    });
+
+    setTokenCookies(res, accessToken, newRefreshToken);
+    res.json({ message: 'Tokens refreshed successfully' });
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid refresh token' });
+  }
+});
+
+router.post('/auth/logout', async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (refreshToken) {
+      const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+      await prisma.user.update({
+        where: { id: decoded.userId },
+        data: { refreshToken: null }
+      });
+    }
+  } catch (error) {
+    // Ignore errors, just clear cookies
+  }
+  
+  res.clearCookie('accessToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
+  });
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
+  });
+  res.json({ message: 'Logged out successfully' });
+});
 router.post('/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -24,21 +145,16 @@ router.post('/signup', async (req, res) => {
         password: hashedPassword
       }
     });
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-    const refreshToken = jwt.sign(
-      {userId: user.id, email: user.email},
-      process.env.JWT_SECRET,
-      {expiresIn: '30d'}
-    )
+    const { accessToken, refreshToken } = generateTokens(user);
+    
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken }
+    });
 
+    setTokenCookies(res, accessToken, refreshToken);
     res.status(201).json({ 
-      message: 'User created successfully', 
-      token,
-      refreshToken,
+      message: 'User created successfully',
       user: { id: user.id, name: user.name, email: user.email }
     });
   } catch (error) {
@@ -61,21 +177,16 @@ router.post('/login', async (req, res) => {
     if (!isValidPassword) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-    const refreshToken = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '30d' }
-    )
+    const { accessToken, refreshToken } = generateTokens(user);
+    
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken }
+    });
 
+    setTokenCookies(res, accessToken, refreshToken);
     res.json({ 
-      message: 'Login successful', 
-      token,
-      refreshToken,
+      message: 'Login successful',
       user: { id: user.id, name: user.name, email: user.email }
     });
   } catch (error) {
