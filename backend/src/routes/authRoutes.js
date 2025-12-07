@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+
 import { PrismaClient } from '@prisma/client';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -95,6 +96,8 @@ router.post('/auth/logout', async (req, res) => {
   });
   res.json({ message: 'Logged out successfully' });
 });
+
+
 router.post('/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body;
