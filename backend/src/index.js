@@ -1,9 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import passport from 'passport';
 import authRoutes from './routes/authRoutes.js';
-import './config/passport.js';
 
 const app = express();
 const PORT = process.env.PORT || 3333;
@@ -16,7 +14,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(passport.initialize());
+
 app.use('/api', authRoutes);
 
 app.listen(PORT, (error) => {

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import GoogleOAuthButton from '../components/GoogleOAuthButton';
 import '../styles/auth.css';
 
 function Login() {
@@ -63,9 +62,7 @@ function Login() {
           </div>
         )}
 
-        <GoogleOAuthButton />
-        
-        <div className="auth-divider">or continue with email</div>
+
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">

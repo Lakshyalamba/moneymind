@@ -1,7 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import passport from 'passport';
 import { PrismaClient } from '@prisma/client';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -37,38 +36,7 @@ const setTokenCookies = (res, accessToken, refreshToken) => {
   });
 };
 
-// Google OAuth routes
-router.get('/auth/google', (req, res, next) => {
-  const authOptions = {
-    scope: ['profile', 'email']
-  };
-  
-  // Force re-authentication if logout parameter is present
-  if (req.query.prompt === 'select_account') {
-    authOptions.prompt = 'select_account';
-  }
-  
-  passport.authenticate('google', authOptions)(req, res, next);
-});
 
-router.get('/auth/google/callback', 
-  passport.authenticate('google', { session: false }),
-  async (req, res) => {
-    try {
-      const { accessToken, refreshToken } = generateTokens(req.user);
-      
-      await prisma.user.update({
-        where: { id: req.user.id },
-        data: { refreshToken }
-      });
-
-      setTokenCookies(res, accessToken, refreshToken);
-      res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
-    } catch (error) {
-      res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`);
-    }
-  }
-);
 
 router.post('/auth/refresh-token', async (req, res) => {
   try {
