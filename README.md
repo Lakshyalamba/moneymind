@@ -1,6 +1,6 @@
 # MoneyMind - Personal Finance Web App
 
-A simple login and signup system built with React, Node.js, Express, MySQL, and Prisma.
+A simple login and signup system built with React, Node.js, Express, PostgreSQL, and Prisma.
 
 ## Setup Instructions
 
@@ -80,7 +80,7 @@ The frontend will run on `http://localhost:5173`
 
 - **Frontend**: React with Vite, React Router
 - **Backend**: Node.js, Express
-- **Database**: MySQL
+- **Database**: PostgreSQL
 - **ORM**: Prisma
 - **Styling**: Pure CSS
 - **Security**: bcryptjs for password hashing, Passport.js for OAuth
