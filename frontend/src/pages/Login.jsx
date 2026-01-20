@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FaBullseye } from 'react-icons/fa';
 
 import '../styles/auth.css';
 
@@ -56,14 +57,23 @@ function Login() {
           <h2 className="auth-title">Welcome Back</h2>
           <p className="auth-subtitle">Sign in to your account to continue</p>
         </div>
-        
+
         {message && (
           <div className={`message ${messageType}`}>
             {message}
           </div>
         )}
 
-
+        <div className="demo-credentials">
+          <div className="demo-header">
+            <FaBullseye className="demo-icon" />
+            <strong>Demo Account</strong>
+          </div>
+          <div className="demo-info">
+            <p><strong>Email:</strong> moneymind@gmail.com</p>
+            <p><strong>Password:</strong> happybudgeting</p>
+          </div>
+        </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">

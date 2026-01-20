@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import { apiRequest } from '../utils/auth';
 import '../styles/transactions.css';
 
@@ -37,9 +38,9 @@ function Transactions() {
         sortBy,
         sortOrder
       });
-      
+
       const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions?${params}`);
-      
+
       if (response.ok) {
         const data = await response.json();
         setTransactions(data.transactions);
@@ -125,18 +126,18 @@ function Transactions() {
             onChange={(e) => setSearch(e.target.value)}
             className="search-input"
           />
-          
+
           <select value={filter} onChange={(e) => setFilter(e.target.value)} className="filter-select">
             <option value="all">All</option>
             <option value="income">Income</option>
             <option value="expense">Expense</option>
           </select>
-          
+
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
             <option value="date">Sort by Date</option>
             <option value="amount">Sort by Amount</option>
           </select>
-          
+
           <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="sort-order-select">
             <option value="desc">High to Low</option>
             <option value="asc">Low to High</option>
@@ -152,7 +153,7 @@ function Transactions() {
             <div className="header-cell">Note</div>
             <div className="header-cell">Actions</div>
           </div>
-          
+
           <div className="table-body">
             {transactions && transactions.map((transaction) => (
               <div key={transaction.id} className={`table-row ${transaction.type}`}>
@@ -168,8 +169,8 @@ function Transactions() {
                 <div className="table-cell">{transaction.date}</div>
                 <div className="table-cell note-cell">{transaction.note}</div>
                 <div className="table-cell actions-cell">
-                  <button onClick={() => handleEdit(transaction)} className="edit-btn">✏️</button>
-                  <button onClick={() => handleDelete(transaction.id)} className="delete-btn">🗑️</button>
+                  <button onClick={() => handleEdit(transaction)} className="edit-btn"><FaEdit /></button>
+                  <button onClick={() => handleDelete(transaction.id)} className="delete-btn"><FaTrash /></button>
                 </div>
               </div>
             ))}
@@ -184,21 +185,21 @@ function Transactions() {
 
         {totalPages > 1 && (
           <div className="pagination">
-            <button 
-              onClick={() => setCurrentPage(1)} 
+            <button
+              onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
               className="page-btn"
             >
               First
             </button>
-            <button 
-              onClick={() => setCurrentPage(currentPage - 1)} 
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
               className="page-btn"
             >
               Previous
             </button>
-            
+
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
               <button
                 key={page}
@@ -208,16 +209,16 @@ function Transactions() {
                 {page}
               </button>
             ))}
-            
-            <button 
-              onClick={() => setCurrentPage(currentPage + 1)} 
+
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="page-btn"
             >
               Next
             </button>
-            <button 
-              onClick={() => setCurrentPage(totalPages)} 
+            <button
+              onClick={() => setCurrentPage(totalPages)}
               disabled={currentPage === totalPages}
               className="page-btn"
             >

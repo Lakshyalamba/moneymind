@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import { apiRequest } from '../utils/auth';
 import '../styles/goals.css';
 
@@ -56,7 +57,7 @@ function Goals() {
           body: JSON.stringify(formData)
         });
       }
-      
+
       if (response.ok) {
         fetchGoals();
         resetForm();
@@ -107,7 +108,7 @@ function Goals() {
       <div className="page-header">
         <h1>Savings Goals</h1>
         <p>Track and achieve your financial objectives</p>
-        <button 
+        <button
           className="add-goal-btn"
           onClick={() => setShowForm(true)}
         >
@@ -181,8 +182,8 @@ function Goals() {
             <div className="goal-header">
               <h3>{goal.title}</h3>
               <div className="goal-actions">
-                <button onClick={() => handleEdit(goal)} className="edit-btn">✏️</button>
-                <button onClick={() => handleDelete(goal.id)} className="delete-btn">🗑️</button>
+                <button onClick={() => handleEdit(goal)} className="edit-btn"><FaEdit /></button>
+                <button onClick={() => handleDelete(goal.id)} className="delete-btn"><FaTrash /></button>
               </div>
             </div>
             <div className="goal-amounts">
@@ -197,7 +198,7 @@ function Goals() {
             </div>
             <div className="progress-section">
               <div className="progress-bar">
-                <div 
+                <div
                   className="progress-fill"
                   style={{ width: `${calculateProgress(goal.currentAmount, goal.targetAmount)}%` }}
                 ></div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaCamera } from 'react-icons/fa';
 import '../styles/profile.css';
 
 function Profile() {
@@ -128,7 +129,7 @@ function Profile() {
                     onChange={handlePhotoChange}
                     hidden
                   />
-                  <span className="upload-icon">📷</span>
+                  <FaCamera className="upload-icon" />
                 </label>
               )}
             </div>

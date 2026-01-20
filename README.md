@@ -2,7 +2,17 @@
 
 A comprehensive personal finance web application that helps you track expenses, manage income, set financial goals, and visualize your financial health with beautiful charts and analytics.
 
-## 🌟 Features
+## � Demo Credentials
+
+Want to try the app without signing up? Use these credentials to explore all features:
+
+- **Email:** moneymind@gmail.com
+- **Password:** happybudgeting
+
+> The demo account comes pre-loaded with sample transactions and goals to help you explore the app's functionality.
+
+
+## �🌟 Features
 
 ### 💰 Financial Management
 - **Transaction Tracking**: Record and categorize income and expenses
