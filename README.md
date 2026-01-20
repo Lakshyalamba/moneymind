@@ -60,32 +60,32 @@ Before you begin, ensure you have the following installed:
 
 ### 1. Clone the Repository
 
-\`\`\`bash
-git clone <repository-url>
+```bash
+git clone https://github.com/Lakshyalamba/moneymind.git
 cd moneymind
-\`\`\`
+```
 
 ### 2. Backend Setup
 
-#### Navigate to backend directory:
-\`\`\`bash
+Navigate to backend directory:
+```bash
 cd backend
-\`\`\`
+```
 
-#### Install dependencies:
-\`\`\`bash
+Install dependencies:
+```bash
 npm install
-\`\`\`
+```
 
-#### Configure environment variables:
+Configure environment variables:
 
-Create a \`.env\` file in the backend directory with the following variables:
+Create a `.env` file in the backend directory with the following variables:
 
-\`\`\`env
+```env
 # PostgreSQL Database Configuration
 DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
 
-# JWT Secret Key (use a strong random string in production)
+# JWT Secret Key
 JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
 
 # Server Port
@@ -93,65 +93,62 @@ PORT=3333
 
 # Frontend URL (for CORS)
 FRONTEND_URL=http://localhost:5173
-# For production: FRONTEND_URL=https://your-production-url.com
 
 # Backend URL (for reference)
 BACKEND_URL=http://localhost:3333
-# For production: BACKEND_URL=https://your-backend-url.com
-\`\`\`
+```
 
-#### Generate Prisma client and sync database:
-\`\`\`bash
+Generate Prisma client and sync database:
+```bash
 npx prisma generate
 npx prisma db push
-\`\`\`
+```
 
-#### Start the backend server:
+Start the backend server:
 
-**Development mode** (with auto-restart on file changes):
-\`\`\`bash
+Development mode (with auto-restart on file changes):
+```bash
 npm run dev
-\`\`\`
+```
 
-**Production mode**:
-\`\`\`bash
+Production mode:
+```bash
 npm start
-\`\`\`
+```
 
 The backend will run on **http://localhost:3333**
 
 ### 3. Frontend Setup
 
-#### Navigate to frontend directory:
-\`\`\`bash
+Navigate to frontend directory:
+```bash
 cd ../frontend
-\`\`\`
+```
 
-#### Install dependencies:
-\`\`\`bash
+Install dependencies:
+```bash
 npm install
-\`\`\`
+```
 
-#### Configure environment variables:
+Configure environment variables:
 
-Create a \`.env\` file in the frontend directory:
+Create a `.env` file in the frontend directory:
 
-\`\`\`env
+```env
 VITE_API_URL=http://localhost:3333
-# For production: VITE_API_URL=https://your-backend-url.com
-\`\`\`
+```
 
-#### Start the development server:
-\`\`\`bash
+Start the development server:
+```bash
 npm run dev
-\`\`\`
+```
 
 The frontend will run on **http://localhost:5173**
 
-#### Build for production:
-\`\`\`bash
+Build for production:
+```bash
 npm run build
-\`\`\`
+```
 
 ## 📱 Application Pages
 
@@ -223,54 +220,16 @@ npm run build
 - Intuitive navigation
 - Accessible components
 
-## 📦 Project Structure
-
-\`\`\`
-moneymind/
-├── backend/
-│   ├── prisma/
-│   │   └── schema.prisma
-│   ├── src/
-│   │   ├── config/
-│   │   ├── middleware/
-│   │   │   └── auth.js
-│   │   ├── routes/
-│   │   │   └── authRoutes.js
-│   │   └── index.js
-│   ├── .env
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── Transactions.jsx
-│   │   │   ├── Goals.jsx
-│   │   │   ├── Profile.jsx
-│   │   │   ├── Login.jsx
-│   │   │   ├── Signup.jsx
-│   │   │   ├── AddTransaction.jsx
-│   │   │   └── LandingPage.jsx
-│   │   ├── styles/
-│   │   ├── utils/
-│   │   │   └── auth.js
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── .env
-│   └── package.json
-└── README.md
-\`\`\`
-
 ## 🐛 Troubleshooting
 
 ### Backend won't start
 - Ensure PostgreSQL database is accessible
-- Check \`.env\` file has correct DATABASE_URL
-- Run \`npx prisma generate\` and \`npx prisma db push\`
+- Check `.env` file has correct DATABASE_URL
+- Run `npx prisma generate` and `npx prisma db push`
 
 ### Frontend can't connect to backend
 - Verify backend is running on port 3333
-- Check VITE_API_URL in frontend \`.env\` matches backend URL
+- Check VITE_API_URL in frontend `.env` matches backend URL
 - Ensure CORS is properly configured in backend
 
 ### Login shows internal server error
@@ -278,16 +237,16 @@ moneymind/
 - Check backend terminal for error logs
 - Verify database connection is working
 
-### Recommended: Use \`npm run dev\` for backend
-For better development experience, use \`npm run dev\` instead of \`npm start\`. This enables **nodemon** which automatically restarts the server when you make code changes.
+### Recommended: Use `npm run dev` for backend
+For better development experience, use `npm run dev` instead of `npm start`. This enables **nodemon** which automatically restarts the server when you make code changes.
 
 ## 👥 Contributing
 
 Contributions are welcome! Please follow these steps:
 1. Fork the repository
-2. Create a feature branch (\`git checkout -b feature/AmazingFeature\`)
-3. Commit your changes (\`git commit -m 'Add some AmazingFeature'\`)
-4. Push to the branch (\`git push origin feature/AmazingFeature\`)
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
 ## 📄 License
