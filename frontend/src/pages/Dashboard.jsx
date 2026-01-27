@@ -17,15 +17,46 @@ function Dashboard() {
     balance: 0
   });
 
+  // Currency Converter State
+  const [rupees, setRupees] = useState('');
+  const [dollars, setDollars] = useState('');
+  const exchangeRate = 90.23;
+
+  // Calculator State
+  const [calcDisplay, setCalcDisplay] = useState('');
+
+  // SIP Calculator State
+  const [sipAmount, setSipAmount] = useState('');
+  const [sipRate, setSipRate] = useState('');
+  const [sipYears, setSipYears] = useState('');
+  const [sipResult, setSipResult] = useState({ invested: 0, returns: 0, total: 0 });
+
+  // EMI Calculator State
+  const [loanAmount, setLoanAmount] = useState('');
+  const [loanRate, setLoanRate] = useState('');
+  const [loanTenure, setLoanTenure] = useState('');
+  const [emiResult, setEmiResult] = useState({ emi: 0, interest: 0, total: 0 });
+
+  // FD Calculator State
+  const [fdAmount, setFdAmount] = useState('');
+  const [fdRate, setFdRate] = useState('');
+  const [fdYears, setFdYears] = useState('');
+  const [fdResult, setFdResult] = useState({ principal: 0, interest: 0, maturity: 0 });
+
+  // GST Calculator State
+  const [gstAmount, setGstAmount] = useState('');
+  const [gstRate, setGstRate] = useState('18');
+  const [gstResult, setGstResult] = useState({ base: 0, tax: 0, total: 0 });
+
   const fetchTransactions = async () => {
     try {
       const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions?limit=100`);
-      
+
       if (response.ok) {
         const data = await response.json();
         const transactionsList = data.transactions || [];
         setTransactions(transactionsList);
-        
+
         // Calculate summary
         const income = transactionsList.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
         const expense = transactionsList.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
@@ -62,130 +93,110 @@ function Dashboard() {
     date: t.date
   }));
 
+  // Currency Converter Handlers
+  const handleRupeesChange = (e) => {
+    const value = e.target.value;
+    setRupees(value);
+    setDollars(value ? (parseFloat(value) / exchangeRate).toFixed(2) : '');
+  };
+
+  const handleDollarsChange = (e) => {
+    const value = e.target.value;
+    setDollars(value);
+    setRupees(value ? (parseFloat(value) * exchangeRate).toFixed(2) : '');
+  };
+
+  // Calculator Handlers
+  const handleCalcButtonClick = (value) => {
+    if (value === 'C') {
+      setCalcDisplay('');
+    } else if (value === '=') {
+      try {
+        const result = eval(calcDisplay.replace(/×/g, '*').replace(/÷/g, '/'));
+        setCalcDisplay(result.toString());
+      } catch {
+        setCalcDisplay('Error');
+      }
+    } else {
+      setCalcDisplay(calcDisplay + value);
+    }
+  };
+
+  // SIP Calculator Handler
+  const calculateSIP = () => {
+    const amount = parseFloat(sipAmount) || 0;
+    const rate = parseFloat(sipRate) || 0;
+    const years = parseFloat(sipYears) || 0;
+
+    const monthlyRate = rate / 12 / 100;
+    const months = years * 12;
+    const invested = amount * months;
+
+    const futureValue = amount * (((1 + monthlyRate) ** months - 1) / monthlyRate) * (1 + monthlyRate);
+    const returns = futureValue - invested;
+
+    setSipResult({
+      invested: invested,
+      returns: returns,
+      total: futureValue
+    });
+  };
+
+  // EMI Calculator Handler
+  const calculateEMI = () => {
+    const principal = parseFloat(loanAmount) || 0;
+    const rate = parseFloat(loanRate) || 0;
+    const tenure = parseFloat(loanTenure) || 0;
+
+    const monthlyRate = rate / 12 / 100;
+    const months = tenure * 12;
+
+    const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+    const totalPayment = emi * months;
+    const totalInterest = totalPayment - principal;
+
+    setEmiResult({
+      emi: emi,
+      interest: totalInterest,
+      total: totalPayment
+    });
+  };
+
+  // FD Calculator Handler
+  const calculateFD = () => {
+    const principal = parseFloat(fdAmount) || 0;
+    const rate = parseFloat(fdRate) || 0;
+    const years = parseFloat(fdYears) || 0;
+
+    const maturityAmount = principal * Math.pow(1 + rate / 100, years);
+    const interest = maturityAmount - principal;
+
+    setFdResult({
+      principal: principal,
+      interest: interest,
+      maturity: maturityAmount
+    });
+  };
+
+  // GST Calculator Handler
+  const calculateGST = () => {
+    const amount = parseFloat(gstAmount) || 0;
+    const rate = parseFloat(gstRate) || 0;
+
+    const gstAmt = (amount * rate) / 100;
+    const totalAmount = amount + gstAmt;
+
+    setGstResult({
+      base: amount,
+      tax: gstAmt,
+      total: totalAmount
+    });
+  };
+
   useEffect(() => {
     fetchUserProfile();
     fetchTransactions();
-    initializeTools();
   }, []);
-
-  const initializeTools = () => {
-    // Currency Converter
-    const rupeesInput = document.getElementById('rupees');
-    const dollarsInput = document.getElementById('dollars');
-    const exchangeRate = 90.23;
-
-    if (rupeesInput && dollarsInput) {
-      rupeesInput.addEventListener('input', (e) => {
-        const rupees = parseFloat(e.target.value) || 0;
-        dollarsInput.value = (rupees / exchangeRate).toFixed(2);
-      });
-
-      dollarsInput.addEventListener('input', (e) => {
-        const dollars = parseFloat(e.target.value) || 0;
-        rupeesInput.value = (dollars * exchangeRate).toFixed(2);
-      });
-    }
-
-    // Calculator
-    let calcDisplay = '';
-    const display = document.getElementById('calc-display');
-    const buttons = document.querySelectorAll('.calc-btn');
-
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        const value = button.textContent;
-        
-        if (value === 'C') {
-          calcDisplay = '';
-        } else if (value === '=') {
-          try {
-            calcDisplay = eval(calcDisplay.replace(/×/g, '*').replace(/÷/g, '/')).toString();
-          } catch {
-            calcDisplay = 'Error';
-          }
-        } else {
-          calcDisplay += value;
-        }
-        
-        if (display) display.value = calcDisplay;
-      });
-    });
-
-    // SIP Calculator
-    const sipBtn = document.querySelector('.calc-sip-btn');
-    if (sipBtn) {
-      sipBtn.addEventListener('click', () => {
-        const amount = parseFloat(document.getElementById('sip-amount').value) || 0;
-        const rate = parseFloat(document.getElementById('sip-rate').value) || 0;
-        const years = parseFloat(document.getElementById('sip-years').value) || 0;
-        
-        const monthlyRate = rate / 12 / 100;
-        const months = years * 12;
-        const invested = amount * months;
-        
-        const futureValue = amount * (((1 + monthlyRate) ** months - 1) / monthlyRate) * (1 + monthlyRate);
-        const returns = futureValue - invested;
-        
-        document.getElementById('invested').textContent = `₹${invested.toLocaleString('en-IN')}`;
-        document.getElementById('returns').textContent = `₹${returns.toLocaleString('en-IN')}`;
-        document.getElementById('total').textContent = `₹${futureValue.toLocaleString('en-IN')}`;
-      });
-    }
-
-    // EMI Calculator
-    const emiBtn = document.querySelector('.calc-emi-btn');
-    if (emiBtn) {
-      emiBtn.addEventListener('click', () => {
-        const principal = parseFloat(document.getElementById('loan-amount').value) || 0;
-        const rate = parseFloat(document.getElementById('loan-rate').value) || 0;
-        const tenure = parseFloat(document.getElementById('loan-tenure').value) || 0;
-        
-        const monthlyRate = rate / 12 / 100;
-        const months = tenure * 12;
-        
-        const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
-        const totalPayment = emi * months;
-        const totalInterest = totalPayment - principal;
-        
-        document.getElementById('emi-amount').textContent = `₹${emi.toLocaleString('en-IN')}`;
-        document.getElementById('total-interest').textContent = `₹${totalInterest.toLocaleString('en-IN')}`;
-        document.getElementById('total-payment').textContent = `₹${totalPayment.toLocaleString('en-IN')}`;
-      });
-    }
-
-    // FD Calculator
-    const fdBtn = document.querySelector('.calc-fd-btn');
-    if (fdBtn) {
-      fdBtn.addEventListener('click', () => {
-        const principal = parseFloat(document.getElementById('fd-amount').value) || 0;
-        const rate = parseFloat(document.getElementById('fd-rate').value) || 0;
-        const years = parseFloat(document.getElementById('fd-years').value) || 0;
-        
-        const maturityAmount = principal * Math.pow(1 + rate / 100, years);
-        const interest = maturityAmount - principal;
-        
-        document.getElementById('fd-principal').textContent = `₹${principal.toLocaleString('en-IN')}`;
-        document.getElementById('fd-interest').textContent = `₹${interest.toLocaleString('en-IN')}`;
-        document.getElementById('fd-maturity').textContent = `₹${maturityAmount.toLocaleString('en-IN')}`;
-      });
-    }
-
-    // GST Calculator
-    const gstBtn = document.querySelector('.calc-gst-btn');
-    if (gstBtn) {
-      gstBtn.addEventListener('click', () => {
-        const amount = parseFloat(document.getElementById('gst-amount').value) || 0;
-        const gstRate = parseFloat(document.getElementById('gst-rate').value) || 0;
-        
-        const gstAmount = (amount * gstRate) / 100;
-        const totalAmount = amount + gstAmount;
-        
-        document.getElementById('base-amount').textContent = `₹${amount.toLocaleString('en-IN')}`;
-        document.getElementById('gst-tax').textContent = `₹${gstAmount.toLocaleString('en-IN')}`;
-        document.getElementById('total-with-gst').textContent = `₹${totalAmount.toLocaleString('en-IN')}`;
-      });
-    }
-  };
 
   const fetchUserProfile = async () => {
     try {
@@ -237,14 +248,14 @@ function Dashboard() {
               <Link to="/goals" className="nav-link">Goals</Link>
             </nav>
             <div className="profile-section">
-              <div 
-                className="profile-trigger" 
+              <div
+                className="profile-trigger"
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
               >
                 {user?.profilePhoto ? (
-                  <img 
-                    src={user.profilePhoto} 
-                    alt="Profile" 
+                  <img
+                    src={user.profilePhoto}
+                    alt="Profile"
                     className="profile-avatar"
                   />
                 ) : (
@@ -258,7 +269,7 @@ function Dashboard() {
               {showProfileMenu && (
                 <div className="profile-dropdown">
                   <Link to="/profile" className="dropdown-item">View Profile</Link>
-                  <button onClick={handleLogout} className="dropdown-item" style={{border: 'none', background: 'none', width: '100%', textAlign: 'left'}}>Logout</button>
+                  <button onClick={handleLogout} className="dropdown-item" style={{ border: 'none', background: 'none', width: '100%', textAlign: 'left' }}>Logout</button>
                 </div>
               )}
             </div>
@@ -312,7 +323,7 @@ function Dashboard() {
               <BarChart data={barData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
-                <YAxis tickFormatter={(value) => `${(value/1000).toFixed(0)}k`} />
+                <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} />
                 <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
                 <Bar dataKey="amount" fill="#D4AF37" />
               </BarChart>
@@ -327,11 +338,11 @@ function Dashboard() {
               <h3>Currency Converter</h3>
               <div className="converter-inputs">
                 <div className="input-group">
-                  <input type="number" id="rupees" placeholder="Rupees" className="tool-input" />
+                  <input type="number" value={rupees} onChange={handleRupeesChange} placeholder="Rupees" className="tool-input" />
                   <span>₹</span>
                 </div>
                 <div className="input-group">
-                  <input type="number" id="dollars" placeholder="Dollars" className="tool-input" />
+                  <input type="number" value={dollars} onChange={handleDollarsChange} placeholder="Dollars" className="tool-input" />
                   <span>$</span>
                 </div>
               </div>
@@ -341,27 +352,27 @@ function Dashboard() {
             <div className="tool-card">
               <h3>Calculator</h3>
               <div className="calculator">
-                <input type="text" id="calc-display" className="calc-display" readOnly />
+                <input type="text" value={calcDisplay} className="calc-display" readOnly />
                 <div className="calc-buttons">
-                  <button className="calc-btn clear">C</button>
-                  <button className="calc-btn">±</button>
-                  <button className="calc-btn">%</button>
-                  <button className="calc-btn operator">÷</button>
-                  <button className="calc-btn">7</button>
-                  <button className="calc-btn">8</button>
-                  <button className="calc-btn">9</button>
-                  <button className="calc-btn operator">×</button>
-                  <button className="calc-btn">4</button>
-                  <button className="calc-btn">5</button>
-                  <button className="calc-btn">6</button>
-                  <button className="calc-btn operator">-</button>
-                  <button className="calc-btn">1</button>
-                  <button className="calc-btn">2</button>
-                  <button className="calc-btn">3</button>
-                  <button className="calc-btn operator">+</button>
-                  <button className="calc-btn zero">0</button>
-                  <button className="calc-btn">.</button>
-                  <button className="calc-btn equals">=</button>
+                  <button className="calc-btn clear" onClick={() => handleCalcButtonClick('C')}>C</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('±')}>±</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('%')}>%</button>
+                  <button className="calc-btn operator" onClick={() => handleCalcButtonClick('÷')}>÷</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('7')}>7</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('8')}>8</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('9')}>9</button>
+                  <button className="calc-btn operator" onClick={() => handleCalcButtonClick('×')}>×</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('4')}>4</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('5')}>5</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('6')}>6</button>
+                  <button className="calc-btn operator" onClick={() => handleCalcButtonClick('-')}>-</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('1')}>1</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('2')}>2</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('3')}>3</button>
+                  <button className="calc-btn operator" onClick={() => handleCalcButtonClick('+')}>+</button>
+                  <button className="calc-btn zero" onClick={() => handleCalcButtonClick('0')}>0</button>
+                  <button className="calc-btn" onClick={() => handleCalcButtonClick('.')}>.</button>
+                  <button className="calc-btn equals" onClick={() => handleCalcButtonClick('=')}>=</button>
                 </div>
               </div>
             </div>
@@ -369,64 +380,64 @@ function Dashboard() {
             <div className="tool-card">
               <h3>SIP Calculator</h3>
               <div className="sip-inputs">
-                <input type="number" id="sip-amount" placeholder="Monthly Investment" className="tool-input" />
-                <input type="number" id="sip-rate" placeholder="Annual Return (%)" className="tool-input" />
-                <input type="number" id="sip-years" placeholder="Years" className="tool-input" />
-                <button className="calc-sip-btn">Calculate</button>
+                <input type="number" value={sipAmount} onChange={(e) => setSipAmount(e.target.value)} placeholder="Monthly Investment" className="tool-input" />
+                <input type="number" value={sipRate} onChange={(e) => setSipRate(e.target.value)} placeholder="Annual Return (%)" className="tool-input" />
+                <input type="number" value={sipYears} onChange={(e) => setSipYears(e.target.value)} placeholder="Years" className="tool-input" />
+                <button className="calc-sip-btn" onClick={calculateSIP}>Calculate</button>
               </div>
               <div className="sip-result">
-                <p>Invested: <span id="invested">₹0</span></p>
-                <p>Returns: <span id="returns">₹0</span></p>
-                <p>Total: <span id="total">₹0</span></p>
+                <p>Invested: <span>₹{sipResult.invested.toLocaleString('en-IN')}</span></p>
+                <p>Returns: <span>₹{sipResult.returns.toLocaleString('en-IN')}</span></p>
+                <p>Total: <span>₹{sipResult.total.toLocaleString('en-IN')}</span></p>
               </div>
             </div>
 
             <div className="tool-card">
               <h3>EMI Calculator</h3>
               <div className="sip-inputs">
-                <input type="number" id="loan-amount" placeholder="Loan Amount" className="tool-input" />
-                <input type="number" id="loan-rate" placeholder="Interest Rate (%)" className="tool-input" />
-                <input type="number" id="loan-tenure" placeholder="Tenure (Years)" className="tool-input" />
-                <button className="calc-emi-btn">Calculate EMI</button>
+                <input type="number" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)} placeholder="Loan Amount" className="tool-input" />
+                <input type="number" value={loanRate} onChange={(e) => setLoanRate(e.target.value)} placeholder="Interest Rate (%)" className="tool-input" />
+                <input type="number" value={loanTenure} onChange={(e) => setLoanTenure(e.target.value)} placeholder="Tenure (Years)" className="tool-input" />
+                <button className="calc-emi-btn" onClick={calculateEMI}>Calculate EMI</button>
               </div>
               <div className="sip-result">
-                <p>Monthly EMI: <span id="emi-amount">₹0</span></p>
-                <p>Total Interest: <span id="total-interest">₹0</span></p>
-                <p>Total Payment: <span id="total-payment">₹0</span></p>
+                <p>Monthly EMI: <span>₹{emiResult.emi.toLocaleString('en-IN')}</span></p>
+                <p>Total Interest: <span>₹{emiResult.interest.toLocaleString('en-IN')}</span></p>
+                <p>Total Payment: <span>₹{emiResult.total.toLocaleString('en-IN')}</span></p>
               </div>
             </div>
 
             <div className="tool-card">
               <h3>FD Calculator</h3>
               <div className="sip-inputs">
-                <input type="number" id="fd-amount" placeholder="Principal Amount" className="tool-input" />
-                <input type="number" id="fd-rate" placeholder="Interest Rate (%)" className="tool-input" />
-                <input type="number" id="fd-years" placeholder="Years" className="tool-input" />
-                <button className="calc-fd-btn">Calculate FD</button>
+                <input type="number" value={fdAmount} onChange={(e) => setFdAmount(e.target.value)} placeholder="Principal Amount" className="tool-input" />
+                <input type="number" value={fdRate} onChange={(e) => setFdRate(e.target.value)} placeholder="Interest Rate (%)" className="tool-input" />
+                <input type="number" value={fdYears} onChange={(e) => setFdYears(e.target.value)} placeholder="Years" className="tool-input" />
+                <button className="calc-fd-btn" onClick={calculateFD}>Calculate FD</button>
               </div>
               <div className="sip-result">
-                <p>Principal: <span id="fd-principal">₹0</span></p>
-                <p>Interest: <span id="fd-interest">₹0</span></p>
-                <p>Maturity: <span id="fd-maturity">₹0</span></p>
+                <p>Principal: <span>₹{fdResult.principal.toLocaleString('en-IN')}</span></p>
+                <p>Interest: <span>₹{fdResult.interest.toLocaleString('en-IN')}</span></p>
+                <p>Maturity: <span>₹{fdResult.maturity.toLocaleString('en-IN')}</span></p>
               </div>
             </div>
 
             <div className="tool-card">
               <h3>GST Calculator</h3>
               <div className="sip-inputs">
-                <input type="number" id="gst-amount" placeholder="Amount" className="tool-input" />
-                <select id="gst-rate" className="tool-input" defaultValue="18">
+                <input type="number" value={gstAmount} onChange={(e) => setGstAmount(e.target.value)} placeholder="Amount" className="tool-input" />
+                <select value={gstRate} onChange={(e) => setGstRate(e.target.value)} className="tool-input">
                   <option value="5">5% GST</option>
                   <option value="12">12% GST</option>
                   <option value="18">18% GST</option>
                   <option value="28">28% GST</option>
                 </select>
-                <button className="calc-gst-btn">Calculate GST</button>
+                <button className="calc-gst-btn" onClick={calculateGST}>Calculate GST</button>
               </div>
               <div className="sip-result">
-                <p>Base Amount: <span id="base-amount">₹0</span></p>
-                <p>GST Amount: <span id="gst-tax">₹0</span></p>
-                <p>Total Amount: <span id="total-with-gst">₹0</span></p>
+                <p>Base Amount: <span>₹{gstResult.base.toLocaleString('en-IN')}</span></p>
+                <p>GST Amount: <span>₹{gstResult.tax.toLocaleString('en-IN')}</span></p>
+                <p>Total Amount: <span>₹{gstResult.total.toLocaleString('en-IN')}</span></p>
               </div>
             </div>
           </div>
