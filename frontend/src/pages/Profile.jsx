@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaCamera } from 'react-icons/fa';
-import { apiRequest } from '../utils/auth';
 import '../styles/profile.css';
 
 function Profile() {
@@ -23,7 +22,15 @@ function Profile() {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/profile`);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const response = await fetch('https://moneymind-1-1jg4.onrender.com/api/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -62,8 +69,13 @@ function Profile() {
 
   const handleSave = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/profile`, {
+      const token = localStorage.getItem('token');
+      const response = await fetch('https://moneymind-1-1jg4.onrender.com/api/profile', {
         method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(formData)
       });
 
