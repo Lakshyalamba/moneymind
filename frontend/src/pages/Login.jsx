@@ -71,7 +71,7 @@ function Login() {
           </div>
           <div className="demo-info">
             <p><strong>Email:</strong> moneymind@gmail.com</p>
-            <p><strong>Password:</strong> happybudgeting</p>
+            <p><strong>Password:</strong> happytransactions</p>
           </div>
         </div>
 
