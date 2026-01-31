@@ -329,14 +329,28 @@
 /* Responsive */
 @media (max-width: 480px) {
     .floating-chat-modal {
-        width: calc(100vw - 20px);
-        right: 10px;
-        height: calc(100vh - 120px);
-        bottom: 80px;
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+        height: calc(100vh - 140px);
+        bottom: 90px;
+        max-height: 600px;
     }
 
     .floating-chat-button {
-        right: 10px;
-        bottom: 10px;
+        right: ​20px;
+        bottom: 20px;
+    }
+
+    .message-content {
+        max-width: 90%;
+    }
+
+    .header-title h3 {
+        font-size: 0.9rem;
+    }
+
+    .header-title p {
+        font-size: 0.7rem;
     }
 }

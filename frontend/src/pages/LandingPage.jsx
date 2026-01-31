@@ -18,9 +18,9 @@ function LandingPage() {
       <div className="main-content">
         <section className="hero">
           <div className="hero-content">
-            <h1 className="hero-title">Master Your Financial Future</h1>
-            <p className="hero-subtitle">Take control of your finances with smart budgeting, expense tracking, and personalized insights that transform your relationship with money.</p>
-            <div className="hero-quote">"Financial peace isn't the acquisition of stuff. It's learning to live on less than you make, so you can give money back and have money to invest." - Dave Ramsey</div>
+            <h1 className="hero-title">Master Your Financial Future with AI</h1>
+            <p className="hero-subtitle">Get personalized financial advice from your AI advisor, track expenses effortlessly, and make smarter money decisions with intelligent insights tailored just for you.</p>
+            <div className="hero-quote">"The best investment you can make is in yourself and your financial education." - Warren Buffett</div>
             <div className="hero-stats">
               <div className="stat">
                 <span className="stat-number">10,000+</span>
@@ -49,21 +49,21 @@ function LandingPage() {
 
             <div className="features-grid">
               <div className="feature-card">
-                <h3>Smart Budgeting</h3>
-                <p>Create personalized budgets with automated tracking and intelligent spending alerts.</p>
-                <div className="feature-quote">"A budget is telling your money where to go instead of wondering where it went." - John C. Maxwell</div>
+                <h3>AI Financial Advisor</h3>
+                <p>Get personalized financial advice powered by Google Gemini AI. Ask questions and receive smart, actionable insights based on your spending patterns.</p>
+                <div className="feature-quote">"Intelligence is the ability to adapt to change." - Stephen Hawking</div>
               </div>
 
               <div className="feature-card">
-                <h3>Expense Analytics</h3>
-                <p>Visualize spending patterns with detailed reports and interactive charts.</p>
+                <h3>Transaction Tracking</h3>
+                <p>Effortlessly track income and expenses with detailed categorization. Visualize your financial data with interactive charts and analytics.</p>
                 <div className="feature-quote">"What gets measured gets managed." - Peter Drucker</div>
               </div>
 
               <div className="feature-card">
-                <h3>Secure & Private</h3>
-                <p>Bank-level security with 256-bit encryption and multi-factor authentication.</p>
-                <div className="feature-quote">"Trust is the glue of life. It's the most essential ingredient in effective communication." - Stephen Covey</div>
+                <h3>Financial Calculators</h3>
+                <p>Built-in SIP, EMI, FD, and GST calculators. Plus currency converter and basic calculator for quick financial computations.</p>
+                <div className="feature-quote">"Compound interest is the eighth wonder of the world." - Albert Einstein</div>
               </div>
             </div>
           </div>
