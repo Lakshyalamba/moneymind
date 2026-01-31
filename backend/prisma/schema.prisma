@@ -13,6 +13,8 @@ model User {
   name         String
   email        String        @unique
   password     String
+  phone        String?
+  bio          String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   refreshToken String?

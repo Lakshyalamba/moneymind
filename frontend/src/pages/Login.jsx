@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaBullseye } from 'react-icons/fa';
+import { FaBullseye, FaArrowLeft } from 'react-icons/fa';
 
 import '../styles/auth.css';
 
@@ -52,6 +52,9 @@ function Login() {
   return (
     <div className="auth-page">
       <div className="auth-container">
+        <Link to="/" className="back-button">
+          <FaArrowLeft /> Back to Home
+        </Link>
         <div className="auth-header">
           <h1 className="auth-logo">MoneyMind</h1>
           <h2 className="auth-title">Welcome Back</h2>

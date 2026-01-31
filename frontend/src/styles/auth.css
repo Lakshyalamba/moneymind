@@ -22,6 +22,31 @@
   width: 100%;
   max-width: 450px;
   border: 1px solid rgba(212, 175, 55, 0.1);
+  position: relative;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  color: #D4AF37;
+  background: rgba(212, 175, 55, 0.1);
+  transform: translateX(-3px);
+}
+
+.back-button svg {
+  font-size: 0.85rem;
 }
 
 .auth-header {

@@ -43,7 +43,7 @@ const setTokenCookies = (res, accessToken, refreshToken) => {
 router.post('/auth/refresh-token', async (req, res) => {
   try {
     const { refreshToken } = req.cookies;
-    
+
     if (!refreshToken) {
       return res.status(401).json({ error: 'No refresh token provided' });
     }
@@ -58,7 +58,7 @@ router.post('/auth/refresh-token', async (req, res) => {
     }
 
     const { accessToken, refreshToken: newRefreshToken } = generateTokens(user);
-    
+
     await prisma.user.update({
       where: { id: user.id },
       data: { refreshToken: newRefreshToken }
@@ -84,7 +84,7 @@ router.post('/auth/logout', async (req, res) => {
   } catch (error) {
     // Ignore errors, just clear cookies
   }
-  
+
   const isProduction = process.env.NODE_ENV === 'production';
   res.clearCookie('accessToken', {
     httpOnly: true,
@@ -119,14 +119,14 @@ router.post('/signup', async (req, res) => {
       }
     });
     const { accessToken, refreshToken } = generateTokens(user);
-    
+
     await prisma.user.update({
       where: { id: user.id },
       data: { refreshToken }
     });
 
     setTokenCookies(res, accessToken, refreshToken);
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'User created successfully',
       user: { id: user.id, name: user.name, email: user.email }
     });
@@ -151,14 +151,14 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
     const { accessToken, refreshToken } = generateTokens(user);
-    
+
     await prisma.user.update({
       where: { id: user.id },
       data: { refreshToken }
     });
 
     setTokenCookies(res, accessToken, refreshToken);
-    res.json({ 
+    res.json({
       message: 'Login successful',
       user: { id: user.id, name: user.name, email: user.email }
     });
@@ -171,15 +171,37 @@ router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
-      select: { id: true, name: true, email: true }
+      select: { id: true, name: true, email: true, phone: true, bio: true }
     });
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    
+
     res.json({ user });
   } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update profile
+router.put('/profile', authenticateToken, async (req, res) => {
+  try {
+    const { name, phone, bio } = req.body;
+
+    const user = await prisma.user.update({
+      where: { id: req.user.userId },
+      data: {
+        ...(name && { name }),
+        ...(phone !== undefined && { phone }),
+        ...(bio !== undefined && { bio })
+      },
+      select: { id: true, name: true, email: true, phone: true, bio: true }
+    });
+
+    res.json({ user, message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Profile update error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -189,7 +211,7 @@ router.get('/transactions', authenticateToken, async (req, res) => {
   try {
     const { search = '', filter = 'all', sortBy = 'date', sortOrder = 'desc', page = 1, limit = 7 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
+
     // Build where clause
     const where = {
       userId: req.user.userId,
@@ -201,7 +223,7 @@ router.get('/transactions', authenticateToken, async (req, res) => {
       }),
       ...(filter !== 'all' && { type: filter })
     };
-    
+
     // Build orderBy clause
     const orderBy = {};
     if (sortBy === 'date') {
@@ -211,23 +233,23 @@ router.get('/transactions', authenticateToken, async (req, res) => {
     } else {
       orderBy.createdAt = sortOrder;
     }
-    
+
     const totalCount = await prisma.transaction.count({ where });
-    
+
     const transactions = await prisma.transaction.findMany({
       where,
       orderBy,
       skip,
       take: parseInt(limit)
     });
-    
+
     const formattedTransactions = transactions.map(t => ({
       ...t,
       amount: parseFloat(t.amount)
     }));
-    
+
     const totalPages = Math.ceil(totalCount / parseInt(limit));
-    
+
     res.json({
       transactions: formattedTransactions,
       totalPages,
@@ -268,9 +290,9 @@ router.put('/transactions/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { amount, type, category, note, date } = req.body;
     const transaction = await prisma.transaction.update({
-      where: { 
+      where: {
         id: parseInt(id),
-        userId: req.user.userId 
+        userId: req.user.userId
       },
       data: {
         amount: amount.toString(),
@@ -349,15 +371,15 @@ router.put('/goals/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { title, targetAmount, currentAmount, deadline } = req.body;
     const goal = await prisma.goal.update({
-      where: { 
+      where: {
         id: parseInt(id),
-        userId: req.user.userId 
+        userId: req.user.userId
       },
-      data: { 
-        title, 
-        targetAmount: targetAmount.toString(), 
-        currentAmount: (currentAmount || 0).toString(), 
-        deadline 
+      data: {
+        title,
+        targetAmount: targetAmount.toString(),
+        currentAmount: (currentAmount || 0).toString(),
+        deadline
       }
     });
     res.json({

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 
 import '../styles/auth.css';
 
@@ -26,7 +27,7 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.email || !formData.password) {
       setMessage('All fields are required');
       setMessageType('error');
@@ -68,12 +69,15 @@ function Signup() {
   return (
     <div className="auth-page">
       <div className="auth-container">
+        <Link to="/" className="back-button">
+          <FaArrowLeft /> Back to Home
+        </Link>
         <div className="auth-header">
           <h1 className="auth-logo">MoneyMind</h1>
           <h2 className="auth-title">Create Account</h2>
           <p className="auth-subtitle">Join thousands managing their finances smarter</p>
         </div>
-        
+
         {message && (
           <div className={`message ${messageType}`}>
             {message}
