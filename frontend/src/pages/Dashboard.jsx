@@ -48,6 +48,9 @@ function Dashboard() {
   const [gstRate, setGstRate] = useState('18');
   const [gstResult, setGstResult] = useState({ base: 0, tax: 0, total: 0 });
 
+  // Monthly Spending State
+  const [monthlyData, setMonthlyData] = useState([]);
+
   const fetchTransactions = async () => {
     try {
       const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions?limit=100`);
@@ -65,6 +68,38 @@ function Dashboard() {
           expense,
           balance: income - expense
         });
+
+        // Calculate Monthly Spending (Last 6 Months)
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const last6Months = [];
+        const today = new Date();
+
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+          last6Months.push({
+            monthIndex: d.getMonth(),
+            year: d.getFullYear(),
+            monthName: months[d.getMonth()]
+          });
+        }
+
+        const spendingData = last6Months.map(m => {
+          const monthlyAmount = transactionsList
+            .filter(t => {
+              const tDate = new Date(t.date);
+              return t.type === 'expense' &&
+                tDate.getMonth() === m.monthIndex &&
+                tDate.getFullYear() === m.year;
+            })
+            .reduce((sum, t) => sum + t.amount, 0);
+
+          return {
+            month: m.monthName,
+            amount: monthlyAmount
+          };
+        });
+
+        setMonthlyData(spendingData);
       }
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -74,15 +109,6 @@ function Dashboard() {
   const pieData = [
     { name: 'Income', value: summaryData.income, color: '#28a745' },
     { name: 'Expense', value: summaryData.expense, color: '#dc3545' }
-  ];
-
-  const barData = [
-    { month: 'Jan', amount: 240000 },
-    { month: 'Feb', amount: 139800 },
-    { month: 'Mar', amount: 980000 },
-    { month: 'Apr', amount: 390800 },
-    { month: 'May', amount: 480000 },
-    { month: 'Jun', amount: 380000 }
   ];
 
   const recentTransactions = (transactions || []).slice(0, 5).map(t => ({
@@ -337,7 +363,7 @@ function Dashboard() {
           <div className="chart-card">
             <h3 className="chart-title">Monthly Spending</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={barData}>
+              <BarChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} />
