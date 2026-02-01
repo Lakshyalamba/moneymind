@@ -241,6 +241,23 @@ function Dashboard() {
             <h1>Welcome back, {user?.name || 'User'}!</h1>
             <p>Here's your financial overview</p>
           </div>
+          {summaryData.expense > 100000 && (
+            <div className="expense-alert" style={{
+              backgroundColor: '#fee2e2',
+              border: '1px solid #ef4444',
+              color: '#b91c1c',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
+              <span>⚠️ Alert: Monthly expenses have exceeded ₹1,00,000! Please review your spending.</span>
+            </div>
+          )}
           <div className="header-right">
             <nav className="dashboard-nav">
               <Link to="/add-transaction" className="nav-link">Add Transaction</Link>
