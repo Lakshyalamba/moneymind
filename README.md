@@ -7,7 +7,7 @@ A comprehensive personal finance web application that helps you track expenses, 
 Want to try the app without signing up? Use these credentials to explore all features:
 
 - **Email:** moneymind@gmail.com
-- **Password:** happybudgeting
+- **Password:** happytransactions
 
 > The demo account comes pre-loaded with sample transactions and goals to help you explore the app's functionality.
 
