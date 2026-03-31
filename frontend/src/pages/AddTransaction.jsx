@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiRequest } from '../utils/auth';
+import { apiRequest, API_BASE_URL } from '../utils/auth';
 import '../styles/addTransaction.css';
 
 function AddTransaction() {
@@ -27,7 +27,7 @@ function AddTransaction() {
     setLoading(true);
     
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions`, {
+      const response = await apiRequest(`${API_BASE_URL}/api/transactions`, {
         method: 'POST',
         body: JSON.stringify(formData)
       });

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import { apiRequest } from '../utils/auth';
+import { apiRequest, API_BASE_URL } from '../utils/auth';
 import '../styles/transactions.css';
 
 function Transactions() {
@@ -39,7 +39,7 @@ function Transactions() {
         sortOrder
       });
 
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions?${params}`);
+      const response = await apiRequest(`${API_BASE_URL}/api/transactions?${params}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -71,7 +71,7 @@ function Transactions() {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this transaction?')) {
       try {
-        const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions/${id}`, {
+        const response = await apiRequest(`${API_BASE_URL}/api/transactions/${id}`, {
           method: 'DELETE'
         });
         if (response.ok) {
@@ -86,7 +86,7 @@ function Transactions() {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions/${editingTransaction.id}`, {
+      const response = await apiRequest(`${API_BASE_URL}/api/transactions/${editingTransaction.id}`, {
         method: 'PUT',
         body: JSON.stringify(formData)
       });

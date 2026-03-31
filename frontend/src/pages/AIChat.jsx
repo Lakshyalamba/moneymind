@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { apiRequest, logout } from '../utils/auth';
+import { apiRequest, logout, API_BASE_URL } from '../utils/auth';
 import { FiSend, FiMessageSquare } from 'react-icons/fi';
 import { BiBot } from 'react-icons/bi';
 import '../styles/chat.css';
@@ -43,7 +43,7 @@ function AIChat() {
 
     const fetchUserProfile = async () => {
         try {
-            const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/profile`);
+            const response = await apiRequest(`${API_BASE_URL}/api/profile`);
 
             if (response.ok) {
                 const data = await response.json();
@@ -83,7 +83,7 @@ function AIChat() {
 
         try {
             // Send message to backend AI endpoint
-            const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/ai/chat`, {
+            const response = await apiRequest(`${API_BASE_URL}/api/ai/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

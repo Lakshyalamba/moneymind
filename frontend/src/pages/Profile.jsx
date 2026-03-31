@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaCamera } from 'react-icons/fa';
-import { apiRequest } from '../utils/auth';
+import { apiRequest, API_BASE_URL } from '../utils/auth';
 import '../styles/profile.css';
 
 function Profile() {
@@ -23,7 +23,7 @@ function Profile() {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/profile`);
+      const response = await apiRequest(`${API_BASE_URL}/api/profile`);
 
       if (response.ok) {
         const data = await response.json();
@@ -62,7 +62,7 @@ function Profile() {
 
   const handleSave = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/profile`, {
+      const response = await apiRequest(`${API_BASE_URL}/api/profile`, {
         method: 'PUT',
         body: JSON.stringify(formData)
       });

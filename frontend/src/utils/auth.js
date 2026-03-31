@@ -1,3 +1,5 @@
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3333';
+
 export const apiRequest = async (url, options = {}) => {
   const config = {
     credentials: 'include',
@@ -13,7 +15,7 @@ export const apiRequest = async (url, options = {}) => {
 
 export const logout = async () => {
   try {
-    await apiRequest(`${import.meta.env.VITE_API_URL}/api/auth/logout`, {
+    await apiRequest(`${API_BASE_URL}/api/auth/logout`, {
       method: 'POST'
     });
   } catch (error) {

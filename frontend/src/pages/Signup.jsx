@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
+import { API_BASE_URL } from '../utils/auth';
 
 import '../styles/auth.css';
 
@@ -41,7 +42,7 @@ function Signup() {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/signup`, {
+      const response = await fetch(`${API_BASE_URL}/api/signup`, {
         method: 'POST',
         credentials: 'include',
         headers: {

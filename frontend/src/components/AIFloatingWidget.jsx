@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { apiRequest } from '../utils/auth';
+import { apiRequest, API_BASE_URL } from '../utils/auth';
 import { FiSend, FiMessageSquare, FiX } from 'react-icons/fi';
 import { BiBot } from 'react-icons/bi';
 import { HiSparkles } from 'react-icons/hi';
@@ -51,7 +51,7 @@ function AIFloatingWidget() {
 
         try {
             // Send message to backend AI endpoint
-            const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/ai/chat`, {
+            const response = await apiRequest(`${API_BASE_URL}/api/ai/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

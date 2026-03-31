@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import { apiRequest } from '../utils/auth';
+import { apiRequest, API_BASE_URL } from '../utils/auth';
 import '../styles/goals.css';
 
 function Goals() {
@@ -22,7 +22,7 @@ function Goals() {
 
   const fetchGoals = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/goals`);
+      const response = await apiRequest(`${API_BASE_URL}/api/goals`);
       if (response.ok) {
         const data = await response.json();
         setGoals(data);
@@ -47,12 +47,12 @@ function Goals() {
     try {
       let response;
       if (editingGoal) {
-        response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/goals/${editingGoal.id}`, {
+        response = await apiRequest(`${API_BASE_URL}/api/goals/${editingGoal.id}`, {
           method: 'PUT',
           body: JSON.stringify(formData)
         });
       } else {
-        response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/goals`, {
+        response = await apiRequest(`${API_BASE_URL}/api/goals`, {
           method: 'POST',
           body: JSON.stringify(formData)
         });
@@ -82,7 +82,7 @@ function Goals() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/goals/${id}`, {
+      const response = await apiRequest(`${API_BASE_URL}/api/goals/${id}`, {
         method: 'DELETE'
       });
       if (response.ok) {

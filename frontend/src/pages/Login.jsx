@@ -1,16 +1,21 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaBullseye, FaArrowLeft } from 'react-icons/fa';
+import { API_BASE_URL } from '../utils/auth';
 
 import '../styles/auth.css';
 
 function Login() {
+  const DEMO_EMAIL = 'moneymind@gmail.com';
+  const DEMO_PASSWORD = 'happytransactions';
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -22,9 +27,14 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoggingIn) return;
+
+    setMessage('');
+    setMessageType('');
+    setIsLoggingIn(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -46,7 +56,16 @@ function Login() {
     } catch (error) {
       setMessage('Network error. Please try again.');
       setMessageType('error');
+    } finally {
+      setIsLoggingIn(false);
     }
+  };
+
+  const handleUseDemoCredentials = () => {
+    setFormData({
+      email: DEMO_EMAIL,
+      password: DEMO_PASSWORD
+    });
   };
 
   return (
@@ -73,9 +92,12 @@ function Login() {
             <strong>Demo Account</strong>
           </div>
           <div className="demo-info">
-            <p><strong>Email:</strong> moneymind@gmail.com</p>
-            <p><strong>Password:</strong> happytransactions</p>
+            <p><strong>Email:</strong> {DEMO_EMAIL}</p>
+            <p><strong>Password:</strong> {DEMO_PASSWORD}</p>
           </div>
+          <button type="button" className="use-demo-button" onClick={handleUseDemoCredentials}>
+            Use Demo Credentials
+          </button>
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -88,6 +110,7 @@ function Login() {
               onChange={handleChange}
               className="form-input"
               placeholder="Enter your email"
+              disabled={isLoggingIn}
               required
             />
           </div>
@@ -101,12 +124,13 @@ function Login() {
               onChange={handleChange}
               className="form-input"
               placeholder="Enter your password"
+              disabled={isLoggingIn}
               required
             />
           </div>
 
-          <button type="submit" className="auth-button">
-            Sign In
+          <button type="submit" className="auth-button" disabled={isLoggingIn}>
+            {isLoggingIn ? 'Logging In...' : 'Sign In'}
           </button>
         </form>
 

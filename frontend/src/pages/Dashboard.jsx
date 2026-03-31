@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { apiRequest, logout } from '../utils/auth';
+import { apiRequest, logout, API_BASE_URL } from '../utils/auth';
 import '../styles/dashboard.css';
 
 function Dashboard() {
@@ -53,7 +53,7 @@ function Dashboard() {
 
   const fetchTransactions = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/transactions?limit=100`);
+      const response = await apiRequest(`${API_BASE_URL}/api/transactions?limit=100`);
 
       if (response.ok) {
         const data = await response.json();
@@ -226,7 +226,7 @@ function Dashboard() {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await apiRequest(`${import.meta.env.VITE_API_URL}/api/profile`);
+      const response = await apiRequest(`${API_BASE_URL}/api/profile`);
 
       if (response.ok) {
         const data = await response.json();

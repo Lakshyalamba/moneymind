@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "npm install && prisma generate",
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node --env-file=.env src/index.js",
+    "dev": "node --watch --env-file=.env src/index.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {

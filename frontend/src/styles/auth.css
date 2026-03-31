@@ -126,6 +126,13 @@
   box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
 }
 
+.auth-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+  transform: none;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+}
+
 .auth-link {
   text-align: center;
   margin-top: 2rem;
@@ -205,6 +212,24 @@
 .demo-info strong {
   color: #333;
   font-weight: 600;
+}
+
+.use-demo-button {
+  margin-top: 0.85rem;
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #D4AF37;
+  border-radius: 8px;
+  background: white;
+  color: #B8941F;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.use-demo-button:hover {
+  background: #fff7df;
 }
 
 

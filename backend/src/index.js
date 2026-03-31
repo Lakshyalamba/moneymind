@@ -6,9 +6,10 @@ import aiRoutes from './routes/aiRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3333;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://127.0.0.1:5173';
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -20,7 +21,7 @@ app.use('/api', authRoutes);
 app.use('/api', aiRoutes);
 
 app.listen(PORT, (error) => {
-  console.log(error)
+  console.log(error);
 
   console.log(`Server running on port ${PORT}`);
 });
