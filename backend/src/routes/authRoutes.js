@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -36,6 +36,24 @@ const setTokenCookies = (res, accessToken, refreshToken) => {
     sameSite: isProduction ? 'none' : 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000
   });
+};
+
+const isDatabaseUnavailableError = (error) => (
+  error instanceof Prisma.PrismaClientInitializationError ||
+  error?.name === 'PrismaClientInitializationError' ||
+  error?.message?.includes("Can't reach database server")
+);
+
+const handleRouteError = (res, error, context = 'Request') => {
+  console.error(`${context} error:`, error);
+
+  if (isDatabaseUnavailableError(error)) {
+    return res.status(503).json({
+      error: 'Database unavailable. Start PostgreSQL and try again.'
+    });
+  }
+
+  return res.status(500).json({ error: 'Internal server error' });
 };
 
 
@@ -131,8 +149,7 @@ router.post('/signup', async (req, res) => {
       user: { id: user.id, name: user.name, email: user.email }
     });
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Signup');
   }
 });
 router.post('/login', async (req, res) => {
@@ -163,8 +180,7 @@ router.post('/login', async (req, res) => {
       user: { id: user.id, name: user.name, email: user.email }
     });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Login');
   }
 });
 router.get('/profile', authenticateToken, async (req, res) => {
@@ -180,7 +196,7 @@ router.get('/profile', authenticateToken, async (req, res) => {
 
     res.json({ user });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Profile fetch');
   }
 });
 
@@ -201,8 +217,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
 
     res.json({ user, message: 'Profile updated successfully' });
   } catch (error) {
-    console.error('Profile update error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Profile update');
   }
 });
 
@@ -257,8 +272,7 @@ router.get('/transactions', authenticateToken, async (req, res) => {
       totalCount
     });
   } catch (error) {
-    console.error('Transactions fetch error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Transactions fetch');
   }
 });
 
@@ -280,8 +294,7 @@ router.post('/transactions', authenticateToken, async (req, res) => {
       amount: parseFloat(transaction.amount)
     });
   } catch (error) {
-    console.error('Transaction creation error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Transaction creation');
   }
 });
 
@@ -307,8 +320,7 @@ router.put('/transactions/:id', authenticateToken, async (req, res) => {
       amount: parseFloat(transaction.amount)
     });
   } catch (error) {
-    console.error('Transaction update error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Transaction update');
   }
 });
 
@@ -320,7 +332,7 @@ router.delete('/transactions/:id', authenticateToken, async (req, res) => {
     });
     res.json({ message: 'Transaction deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Transaction delete');
   }
 });
 
@@ -338,8 +350,7 @@ router.get('/goals', authenticateToken, async (req, res) => {
     }));
     res.json(formattedGoals);
   } catch (error) {
-    console.error('Goals fetch error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Goals fetch');
   }
 });
 
@@ -361,8 +372,7 @@ router.post('/goals', authenticateToken, async (req, res) => {
       currentAmount: parseFloat(goal.currentAmount)
     });
   } catch (error) {
-    console.error('Goal creation error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Goal creation');
   }
 });
 
@@ -388,8 +398,7 @@ router.put('/goals/:id', authenticateToken, async (req, res) => {
       currentAmount: parseFloat(goal.currentAmount)
     });
   } catch (error) {
-    console.error('Goal update error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Goal update');
   }
 });
 
@@ -401,7 +410,7 @@ router.delete('/goals/:id', authenticateToken, async (req, res) => {
     });
     res.json({ message: 'Goal deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    return handleRouteError(res, error, 'Goal delete');
   }
 });
 

@@ -7,7 +7,7 @@ A comprehensive personal finance web application that helps you track expenses, 
 Want to try the app without signing up? Use these credentials to explore all features:
 
 - **Email:** moneymind@gmail.com
-- **Password:** happybudgeting
+- **Password:** happytransactions
 
 > The demo account comes pre-loaded with sample transactions and goals to help you explore the app's functionality.
 
@@ -108,11 +108,14 @@ FRONTEND_URL=http://localhost:5173
 BACKEND_URL=http://localhost:3333
 ```
 
-Generate Prisma client and sync database:
+Generate Prisma client, sync the database, and seed the demo account:
 ```bash
 npx prisma generate
-npx prisma db push
+npm run db:push
+npm run db:seed
 ```
+
+The demo login only works after `npm run db:seed` has been executed.
 
 Start the backend server:
 
