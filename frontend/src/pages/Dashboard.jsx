@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { apiRequest, logout, API_BASE_URL } from '../utils/auth';
+import Sidebar from '../components/Sidebar';
 import '../styles/dashboard.css';
 
 function Dashboard() {
@@ -20,7 +21,7 @@ function Dashboard() {
   // Currency Converter State
   const [rupees, setRupees] = useState('');
   const [dollars, setDollars] = useState('');
-  const exchangeRate = 90.23;
+  const exchangeRate = 93.36;
 
   // Calculator State
   const [calcDisplay, setCalcDisplay] = useState('');
@@ -260,67 +261,15 @@ function Dashboard() {
   }
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <div className="header-content">
+    <div className="dashboard-layout">
+      <Sidebar />
+      <main className="dashboard-content">
+        <div className="content-header">
           <div className="welcome-section">
             <h1>Welcome back, {user?.name || 'User'}!</h1>
             <p>Here's your financial overview</p>
           </div>
-          {summaryData.expense > 100000 && (
-            <div className="expense-alert" style={{
-              backgroundColor: '#fee2e2',
-              border: '1px solid #ef4444',
-              color: '#b91c1c',
-              padding: '12px',
-              borderRadius: '8px',
-              marginBottom: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}>
-              <span>⚠️ Alert: Monthly expenses have exceeded ₹1,00,000! Please review your spending.</span>
-            </div>
-          )}
-          <div className="header-right">
-            <nav className="dashboard-nav">
-              <Link to="/add-transaction" className="nav-link">Add Transaction</Link>
-              <Link to="/transactions" className="nav-link">View Transactions</Link>
-              <Link to="/goals" className="nav-link">Goals</Link>
-            </nav>
-            <div className="profile-section">
-              <div
-                className="profile-trigger"
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-              >
-                {user?.profilePhoto ? (
-                  <img
-                    src={user.profilePhoto}
-                    alt="Profile"
-                    className="profile-avatar"
-                  />
-                ) : (
-                  <div className="profile-initial">
-                    {getInitial(user?.name)}
-                  </div>
-                )}
-                <span className="profile-name">{user?.name || 'User'}</span>
-                <span className="dropdown-arrow">▼</span>
-              </div>
-              {showProfileMenu && (
-                <div className="profile-dropdown">
-                  <Link to="/profile" className="dropdown-item">View Profile</Link>
-                  <button onClick={handleLogout} className="dropdown-item" style={{ border: 'none', background: 'none', width: '100%', textAlign: 'left' }}>Logout</button>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
-      </header>
-
-      <main className="dashboard-content">
         <section className="summary-cards">
           <div className="summary-card income">
             <div className="card-title">Total Income</div>
@@ -389,7 +338,7 @@ function Dashboard() {
                   <span>$</span>
                 </div>
               </div>
-              <p className="rate">1 USD = ₹90.23</p>
+              <p className="rate">1 USD = ₹93.36</p>
             </div>
 
             <div className="tool-card">

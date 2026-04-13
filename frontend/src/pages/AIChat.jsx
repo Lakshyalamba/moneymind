@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { apiRequest, logout, API_BASE_URL } from '../utils/auth';
 import { FiSend, FiMessageSquare } from 'react-icons/fi';
 import { BiBot } from 'react-icons/bi';
+import Sidebar from '../components/Sidebar';
 import '../styles/chat.css';
 
 function AIChat() {
@@ -147,33 +148,22 @@ function AIChat() {
     }
 
     return (
-        <div className="ai-chat-container">
-            {/* Header */}
-            <header className="chat-header">
-                <div className="header-content">
-                    <div className="welcome-section">
-                        <BiBot className="ai-icon" />
-                        <div>
-                            <h1>AI Financial Assistant</h1>
-                            <p>Your personal finance advisor</p>
+        <div className="dashboard-layout">
+            <Sidebar />
+            <main className="dashboard-content">
+            <div className="ai-chat-container">
+                {/* Header */}
+                <header className="chat-header">
+                    <div className="header-content">
+                        <div className="welcome-section">
+                            <BiBot className="ai-icon" />
+                            <div>
+                                <h1>AI Financial Assistant</h1>
+                                <p>Your personal finance advisor</p>
+                            </div>
                         </div>
                     </div>
-                    <div className="header-right">
-                        <nav className="dashboard-nav">
-                            <Link to="/dashboard" className="nav-link">Dashboard</Link>
-                            <Link to="/transactions" className="nav-link">Transactions</Link>
-                            <Link to="/goals" className="nav-link">Goals</Link>
-                        </nav>
-                        <div className="profile-section">
-                            <div
-                                className="profile-trigger"
-                                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                            >
-                                {user?.profilePhoto ? (
-                                    <img
-                                        src={user.profilePhoto}
-                                        alt="Profile"
-                                        className="profile-avatar"
+                </header>
                                     />
                                 ) : (
                                     <div className="profile-initial">
@@ -266,6 +256,7 @@ function AIChat() {
                     </button>
                 </div>
             </div>
+            </main>
         </div>
     );
 }

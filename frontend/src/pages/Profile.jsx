@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaCamera } from 'react-icons/fa';
 import { apiRequest, API_BASE_URL } from '../utils/auth';
+import Sidebar from '../components/Sidebar';
 import '../styles/profile.css';
 
 function Profile() {
@@ -88,13 +89,15 @@ function Profile() {
   };
 
   return (
-    <div className="profile-page">
-      <div className="page-header">
-        <h1>Profile</h1>
-        <p>Manage your account information</p>
-      </div>
+    <div className="dashboard-layout">
+      <Sidebar />
+      <main className="dashboard-content">
+        <div className="page-header">
+          <h1>Profile</h1>
+          <p>Manage your account information</p>
+        </div>
 
-      <div className="profile-container">
+        <div className="profile-container">
         <div className="profile-card">
           <div className="profile-photo-section">
             <div className="photo-container">
@@ -199,6 +202,7 @@ function Profile() {
           )}
         </div>
       </div>
+      </main>
     </div>
   );
 }

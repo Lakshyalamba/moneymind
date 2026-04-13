@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { apiRequest, API_BASE_URL } from '../utils/auth';
+import Sidebar from '../components/Sidebar';
 import '../styles/goals.css';
 
 function Goals() {
@@ -104,17 +105,19 @@ function Goals() {
   };
 
   return (
-    <div className="goals-page">
-      <div className="page-header">
-        <h1>Savings Goals</h1>
-        <p>Track and achieve your financial objectives</p>
-        <button
-          className="add-goal-btn"
-          onClick={() => setShowForm(true)}
-        >
-          Add New Goal
-        </button>
-      </div>
+    <div className="dashboard-layout">
+      <Sidebar />
+      <main className="dashboard-content">
+        <div className="page-header">
+          <h1>Savings Goals</h1>
+          <p>Track and achieve your financial objectives</p>
+          <button
+            className="add-goal-btn"
+            onClick={() => setShowForm(true)}
+          >
+            Add New Goal
+          </button>
+        </div>
 
       {showForm && (
         <div className="form-modal">
@@ -223,6 +226,7 @@ function Goals() {
           </button>
         </div>
       )}
+      </main>
     </div>
   );
 }

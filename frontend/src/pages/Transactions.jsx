@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import { apiRequest, API_BASE_URL } from '../utils/auth';
+import Sidebar from '../components/Sidebar';
 import '../styles/transactions.css';
 
 function Transactions() {
@@ -111,13 +112,15 @@ function Transactions() {
 
 
   return (
-    <div className="transactions-page">
-      <div className="page-header">
-        <h1>Transactions</h1>
-        <p>View and manage your financial records</p>
-      </div>
+    <div className="dashboard-layout">
+      <Sidebar />
+      <main className="dashboard-content">
+        <div className="page-header">
+          <h1>Transactions</h1>
+          <p>View and manage your financial records</p>
+        </div>
 
-      <div className="transactions-container">
+        <div className="transactions-container">
         <div className="controls">
           <input
             type="text"
@@ -293,6 +296,7 @@ function Transactions() {
           </div>
         )}
       </div>
+      </main>
     </div>
   );
 }
