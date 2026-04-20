@@ -2,9 +2,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   FaHome, 
   FaPlusCircle, 
-  FaListAlt, 
-  FaBullseye, 
-  FaUser 
+  FaListAlt,
+  FaBullseye,
+  FaComments
 } from 'react-icons/fa';
 import { apiRequest, logout, API_BASE_URL } from '../utils/auth';
 import { useState, useEffect } from 'react';
@@ -64,9 +64,9 @@ function Sidebar() {
           <span className="link-icon"><FaBullseye /></span>
           <span className="link-text">Goals</span>
         </Link>
-        <Link to="/profile" className={`sidebar-link ${isActive('/profile') ? 'active' : ''}`}>
-          <span className="link-icon"><FaUser /></span>
-          <span className="link-text">Profile</span>
+        <Link to="/chat" className={`sidebar-link ${isActive('/chat') ? 'active' : ''}`}>
+          <span className="link-icon"><FaComments /></span>
+          <span className="link-text">Chat</span>
         </Link>
       </nav>
 

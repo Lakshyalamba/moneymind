@@ -7,6 +7,7 @@ import AddTransaction from './pages/AddTransaction';
 import Transactions from './pages/Transactions';
 import Profile from './pages/Profile';
 import Goals from './pages/Goals';
+import AIChat from './pages/AIChat';
 import AIFloatingWidget from './components/AIFloatingWidget';
 import './App.css';
 
@@ -14,7 +15,7 @@ function AppContent() {
   const location = useLocation();
 
   // Hide floating chat on landing, login, and signup pages
-  const hideFloatingChat = ['/', '/login', '/signup'].includes(location.pathname);
+  const hideFloatingChat = ['/', '/login', '/signup', '/chat'].includes(location.pathname);
 
   return (
     <div className="App">
@@ -27,6 +28,7 @@ function AppContent() {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/goals" element={<Goals />} />
+        <Route path="/chat" element={<AIChat />} />
       </Routes>
       {!hideFloatingChat && <AIFloatingWidget />}
     </div>
