@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "npm install && prisma generate",
-    "start": "node --env-file=.env src/index.js",
-    "dev": "node --watch-path=src --watch-path=prisma --env-file=.env src/index.js",
+    "build": "prisma generate",
+    "start": "node src/bootstrap.js",
+    "dev": "nodemon --watch src --watch prisma src/bootstrap.js",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
     "postinstall": "prisma generate"

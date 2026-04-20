@@ -20,8 +20,11 @@ app.use(cookieParser());
 app.use('/api', authRoutes);
 app.use('/api', aiRoutes);
 
-app.listen(PORT, (error) => {
-  console.log(error);
-
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+server.on('error', (error) => {
+  console.error('Server failed to start:', error);
+  process.exit(1);
 });

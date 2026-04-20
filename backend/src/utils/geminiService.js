@@ -1,7 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Initialize Gemini AI with API key from environment
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 function formatCurrency(value) {
@@ -44,6 +42,16 @@ function buildLocalFinancialAdvice(userMessage, financialContext) {
     return advice.slice(0, 2).join(' ');
 }
 
+function getGeminiClient() {
+    const apiKey = process.env.GEMINI_API_KEY?.trim();
+
+    if (!apiKey) {
+        return null;
+    }
+
+    return new GoogleGenerativeAI(apiKey);
+}
+
 /**
  * Get financial advice from Gemini AI based on user's financial data
  * @param {string} userMessage - The user's question or message
@@ -51,9 +59,9 @@ function buildLocalFinancialAdvice(userMessage, financialContext) {
  * @returns {Promise<string>} - AI-generated advice
  */
 export async function getFinancialAdvice(userMessage, financialContext) {
-    const apiKey = process.env.GEMINI_API_KEY?.trim();
+    const genAI = getGeminiClient();
 
-    if (!apiKey) {
+    if (!genAI) {
         return buildLocalFinancialAdvice(userMessage, financialContext);
     }
 
