@@ -1,236 +1,227 @@
-# MoneyMind - Personal Finance Management System
+# MoneyMind
 
-A comprehensive personal finance web application that helps you track expenses, manage income, set financial goals, and visualize your financial health with beautiful charts and analytics.
+MoneyMind is a personal finance web application for tracking income and expenses, managing savings goals, reviewing dashboard analytics, and chatting with an AI finance assistant based on your transaction history.
 
-## � Demo Credentials
+## Demo Credentials
 
-Want to try the app without signing up? Use these credentials to explore all features:
+Use the seeded demo account to explore the app without creating a new user:
 
-- **Email:** moneymind@gmail.com
-- **Password:** happytransactions
+- Email: `moneymind@gmail.com`
+- Password: `happytransactions`
 
-> The demo account comes pre-loaded with sample transactions and goals to help you explore the app's functionality.
+## Features
 
+- User signup, login, logout, and token refresh with secure cookies
+- Dashboard with income, expenses, balance, recent transactions, and charts
+- Transaction management with filtering, sorting, pagination, create, update, and delete flows
+- Goal management with create, update, and delete support
+- Profile page for viewing and editing account details
+- Dedicated `Chat` page for AI-powered finance guidance
+- Floating AI assistant widget on authenticated pages
+- Finance utility widgets on the dashboard, including currency, SIP, EMI, FD, and GST tools
+- Responsive frontend built with React and Vite
 
-## �🌟 Features
-
-### 💰 Financial Management
-- **Transaction Tracking**: Record and categorize income and expenses
-- **Dashboard Analytics**: Visual insights with interactive charts (Recharts)
-  - Income vs. Expenses overview
-  - Budget progress tracking
-  - Category-wise expense breakdown
-  - Recent transactions summary
-- **Goals Management**: Set and track financial goals with progress visualization
-- **Smart Filtering**: Search, filter, and sort transactions by date, amount, category, or type
-- **Pagination**: Efficiently navigate through large transaction histories
-
-### 🔐 Authentication & Security
-- **User Authentication**: Secure signup and login with JWT tokens
-- **Google OAuth**: Quick sign-in with Google account
-- **httpOnly Cookies**: Secure token storage preventing XSS attacks
-- **Password Hashing**: Bcrypt encryption for user passwords
-- **Refresh Tokens**: Auto-refresh mechanism for seamless user experience
-- **Protected Routes**: Middleware-protected API endpoints
-
-### 👤 User Features
-- **User Profile**: View and manage account information
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Modern UI**: Clean, intuitive interface with smooth animations
-
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
-- **React** (v18.2.0) - UI library
-- **Vite** - Fast build tool and dev server
-- **React Router DOM** - Client-side routing
-- **Recharts** - Data visualization and charts
-- **Axios** - HTTP client for API requests
-- **Pure CSS** - Custom styling (no framework dependencies)
+
+- React
+- Vite
+- React Router
+- Recharts
+- React Icons
+- CSS
 
 ### Backend
-- **Node.js** - Runtime environment
-- **Express** - Web application framework
-- **Prisma** - Modern ORM for database operations
-- **PostgreSQL** (Neon) - Cloud database
-- **JWT** - JSON Web Tokens for authentication
-- **Bcryptjs** - Password hashing
-- **Passport.js** - OAuth authentication
-- **Cookie Parser** - Cookie handling middleware
 
-## 📋 Prerequisites
+- Node.js
+- Express
+- Prisma
+- PostgreSQL
+- JWT
+- bcryptjs
+- cookie-parser
+- CORS
+- Google Gemini API with local fallback advice logic
 
-Before you begin, ensure you have the following installed:
-- **Node.js** (v16 or higher)
-- **npm** or **yarn** package manager
-- **Git** for version control
-- **PostgreSQL database** (or Neon cloud database account)
+## Project Structure
 
-## 🚀 Setup Instructions
+```text
+moneymind/
+|-- backend/
+|   |-- prisma/
+|   `-- src/
+|-- frontend/
+|   |-- public/
+|   `-- src/
+`-- README.md
+```
 
-### 1. Clone the Repository
+## Local Setup
+
+### Prerequisites
+
+- Node.js 18 or newer
+- npm
+- PostgreSQL
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Lakshyalamba/moneymind.git
 cd moneymind
 ```
 
-### 2. Backend Setup
+### 2. Configure the backend
 
-Navigate to backend directory:
 ```bash
 cd backend
-```
-
-Install dependencies:
-```bash
 npm install
 ```
 
-Configure environment variables:
-
-Create a `.env` file in the backend directory with the following variables:
+Create `backend/.env`:
 
 ```env
-# PostgreSQL Database Configuration
-DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
-
-# JWT Secret Key
-JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
-
-# Server Port
+DATABASE_URL="postgresql://postgres:password@127.0.0.1:5432/moneymind?sslmode=disable"
+JWT_SECRET="change-this-in-production"
+GEMINI_API_KEY="your-gemini-api-key"
 PORT=3333
-
-# Frontend URL (for CORS)
-FRONTEND_URL=http://localhost:5173
-
-# Backend URL (for reference)
-BACKEND_URL=http://localhost:3333
+FRONTEND_URL="http://127.0.0.1:5173"
 ```
 
-Generate Prisma client, sync the database, and seed the demo account:
+Notes:
+
+- `GEMINI_API_KEY` is optional. If it is missing or Gemini is unavailable, the backend falls back to local finance advice so chat still works.
+- `FRONTEND_URL` must match the frontend origin for cookie-based auth and CORS.
+
+Initialize the database and seed the demo user:
+
 ```bash
 npx prisma generate
 npm run db:push
 npm run db:seed
 ```
 
-The demo login only works after `npm run db:seed` has been executed.
+Start the backend:
 
-Start the backend server:
-
-Development mode (with auto-restart on file changes):
-```bash
-npm run dev
-```
-
-Production mode:
 ```bash
 npm start
 ```
 
-The backend will run on **http://localhost:3333**
+For watch mode:
 
-### 3. Frontend Setup
-
-Navigate to frontend directory:
-```bash
-cd ../frontend
-```
-
-Install dependencies:
-```bash
-npm install
-```
-
-Configure environment variables:
-
-Create a `.env` file in the frontend directory:
-
-```env
-VITE_API_URL=http://localhost:3333
-```
-
-Start the development server:
 ```bash
 npm run dev
 ```
 
-The frontend will run on **http://localhost:5173**
+The backend runs on `http://127.0.0.1:3333`.
 
-Build for production:
+### 3. Configure the frontend
+
+```bash
+cd ../frontend
+npm install
+```
+
+Create `frontend/.env`:
+
+```env
+VITE_API_URL="http://127.0.0.1:3333"
+```
+
+Start the frontend:
+
+```bash
+npm run dev
+```
+
+The frontend runs on `http://127.0.0.1:5173`.
+
+To create a production build:
+
 ```bash
 npm run build
 ```
 
-## 📱 Application Pages
+## Environment Variables
 
-- **Landing Page** (`/`) - Marketing page with app overview
-- **Signup** (`/signup`) - Create new account
-- **Login** (`/login`) - User authentication
-- **Dashboard** (`/dashboard`) - Financial overview with charts
-- **Transactions** (`/transactions`) - View and manage all transactions
-- **Add Transaction** (`/add-transaction`) - Record new income/expense
-- **Goals** (`/goals`) - Set and track financial goals
-- **Profile** (`/profile`) - User account information
+### Backend
 
-## 🔌 API Endpoints
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_SECRET`: JWT signing secret
+- `GEMINI_API_KEY`: Gemini API key for AI chat responses
+- `PORT`: backend port
+- `FRONTEND_URL`: allowed frontend origin for cookies and CORS
+
+### Frontend
+
+- `VITE_API_URL`: backend base URL used by the frontend
+
+## Application Routes
+
+- `/`: landing page
+- `/login`: login page
+- `/signup`: signup page
+- `/dashboard`: dashboard overview
+- `/add-transaction`: create a transaction
+- `/transactions`: manage transactions
+- `/goals`: manage goals
+- `/profile`: view and update profile
+- `/chat`: full chat page
+
+## API Summary
 
 ### Authentication
-- `POST /api/signup` - Create new user account
-- `POST /api/login` - Authenticate user and receive tokens
-- `POST /api/auth/refresh-token` - Refresh access token
-- `POST /api/auth/logout` - Logout and clear cookies
-- `GET /api/auth/google` - Initiate Google OAuth flow
-- `GET /api/auth/google/callback` - Google OAuth callback handler
 
-### User
-- `GET /api/profile` - Get authenticated user profile (protected)
+- `POST /api/signup`
+- `POST /api/login`
+- `POST /api/auth/refresh-token`
+- `POST /api/auth/logout`
+
+### Profile
+
+- `GET /api/profile`
+- `PUT /api/profile`
 
 ### Transactions
-- `GET /api/transactions` - Get all user transactions with filtering/pagination (protected)
-- `POST /api/transactions` - Create new transaction (protected)
-- `PUT /api/transactions/:id` - Update transaction (protected)
-- `DELETE /api/transactions/:id` - Delete transaction (protected)
+
+- `GET /api/transactions`
+- `POST /api/transactions`
+- `PUT /api/transactions/:id`
+- `DELETE /api/transactions/:id`
 
 ### Goals
-- `GET /api/goals` - Get all user goals (protected)
-- `POST /api/goals` - Create new goal (protected)
-- `PUT /api/goals/:id` - Update goal (protected)
-- `DELETE /api/goals/:id` - Delete goal (protected)
 
-## 🗄️ Database Schema
+- `GET /api/goals`
+- `POST /api/goals`
+- `PUT /api/goals/:id`
+- `DELETE /api/goals/:id`
 
-### User Model
-- id, name, email, password (hashed)
-- refreshToken (for JWT refresh)
-- Relationships: transactions[], goals[]
+### AI Chat
 
-### Transaction Model
-- id, amount, type (income/expense), category, note, date
-- Relationships: user (belongs to User)
+- `POST /api/ai/chat`
 
-### Goal Model
-- id, title, targetAmount, currentAmount, deadline
-- Relationships: user (belongs to User)
+## Deployment Notes
 
-## 🔒 Security Features
+MoneyMind has two deployable parts:
 
-- **JWT Authentication** with access and refresh tokens
-- **httpOnly Cookies** for secure token storage
-- **Password Hashing** with bcryptjs (10 rounds)
-- **CORS Configuration** for cross-origin security
-- **Environment Variables** for sensitive data
-- **Protected Routes** with authentication middleware
-- **SQL Injection Protection** via Prisma ORM
+- Frontend: static React build, suitable for Netlify or Vercel
+- Backend: Express and Prisma server, which must be deployed separately
 
-## 🎨 Design Highlights
+If you deploy the frontend:
 
-- Modern, clean interface
-- Responsive layout for all device sizes
-- Interactive charts and visualizations
-- Smooth animations and transitions
-- Intuitive navigation
-- Accessible components
+- Set `VITE_API_URL` to your deployed backend URL before building
 
-**Happy Budgeting! 💰📊**
+If you deploy the backend:
+
+- Set `FRONTEND_URL` to your deployed frontend domain
+- Use a production PostgreSQL database
+- Set a strong `JWT_SECRET`
+- Add a valid `GEMINI_API_KEY` if you want live Gemini responses
+
+## Development Notes
+
+- The app uses cookie-based authentication, so frontend and backend origin settings must be aligned correctly.
+- The demo login depends on `npm run db:seed`.
+- Chat requests are protected routes and require authentication.
+- The AI chat layer includes fallback behavior so the UI does not break when Gemini is unavailable.
