@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { apiRequest, API_BASE_URL } from '../utils/auth';
 
 const SUGGESTIONS = [
@@ -23,19 +23,52 @@ function createMessage(role, content, type = 'message') {
   };
 }
 
+function debugLog(label, payload) {
+  if (import.meta.env.DEV) {
+    console.debug(`[finance-chat] ${label}`, payload);
+  }
+}
+
 export function useFinanceChat({ onUnauthorized } = {}) {
   const [messages, setMessages] = useState(() => [
     createMessage('assistant', WELCOME_MESSAGE)
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    debugLog('messages:state', messages.map(({ id, role, type, content }) => ({
+      id,
+      role,
+      type,
+      preview: content.slice(0, 80)
+    })));
+  }, [messages]);
+
+  useEffect(() => {
+    debugLog('loading:state', { isLoading });
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      debugLog('error:state', { errorMessage });
+    }
+  }, [errorMessage]);
 
   const sendMessage = useCallback(async (rawMessage) => {
     const messageText = String(rawMessage || '').trim();
+
+    debugLog('request:outgoing', {
+      messageText,
+      isLoading,
+      currentMessageCount: messages.length
+    });
 
     if (!messageText || isLoading) {
       return false;
     }
 
+    setErrorMessage('');
     setMessages((prev) => [...prev, createMessage('user', messageText)]);
     setIsLoading(true);
 
@@ -48,11 +81,24 @@ export function useFinanceChat({ onUnauthorized } = {}) {
         body: JSON.stringify({ message: messageText })
       });
 
-      const data = await response.json();
+      debugLog('response:meta', {
+        ok: response.ok,
+        status: response.status
+      });
+
+      let data = null;
+
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        debugLog('response:parse-failed', parseError);
+      }
+
+      debugLog('response:body', data);
 
       if (response.status === 401) {
         onUnauthorized?.();
-        return false;
+        throw new Error('Your session expired. Please sign in again.');
       }
 
       if (!response.ok) {
@@ -68,21 +114,26 @@ export function useFinanceChat({ onUnauthorized } = {}) {
       setMessages((prev) => [...prev, createMessage('assistant', assistantText)]);
       return true;
     } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        createMessage('assistant', error?.message || 'Unable to get a response right now. Please try again.', 'error')
-      ]);
+      const visibleError = error?.message || 'Unable to get a response right now. Please try again.';
+
+      debugLog('request:error', {
+        visibleError,
+        rawError: error
+      });
+
+      setErrorMessage(visibleError);
+      setMessages((prev) => [...prev, createMessage('assistant', visibleError, 'error')]);
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading, onUnauthorized]);
+  }, [isLoading, messages.length, onUnauthorized]);
 
   const hasConversation = messages.some((message) => message.role === 'user');
   const showSuggestions = !hasConversation && !isLoading;
 
   return {
-    errorMessage: '',
+    errorMessage,
     isLoading,
     messages,
     sendMessage,
