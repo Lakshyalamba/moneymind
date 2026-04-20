@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize Gemini AI with API key from environment
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 function formatCurrency(value) {
     return `₹${Number(value || 0).toLocaleString('en-IN')}`;
@@ -56,9 +57,9 @@ export async function getFinancialAdvice(userMessage, financialContext) {
         return buildLocalFinancialAdvice(userMessage, financialContext);
     }
 
-    try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    let lastError = null;
 
+    try {
         const prompt = `You are a helpful and knowledgeable personal finance advisor. 
 
 Based on the following financial data for the user, provide practical, actionable, and empathetic financial advice:
@@ -74,15 +75,27 @@ User's Question: ${userMessage}
 
 IMPORTANT: Keep your response SHORT and CRISP - maximum 2-3 sentences. Be direct and actionable. No lengthy explanations.`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        for (const modelName of GEMINI_MODELS) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                const text = response.text();
 
-        if (text?.trim()) {
-            return text;
+                if (text?.trim()) {
+                    return text;
+                }
+            } catch (error) {
+                lastError = error;
+                console.error(`Gemini API error for ${modelName}:`, error);
+            }
         }
     } catch (error) {
-        console.error('Gemini API error:', error);
+        lastError = error;
+    }
+
+    if (lastError) {
+        console.error('Gemini fallback to local advice after model failures.');
     }
 
     return buildLocalFinancialAdvice(userMessage, financialContext);
