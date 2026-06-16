@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   FaHome, 
   FaPlusCircle, 
@@ -6,11 +6,12 @@ import {
   FaBullseye,
   FaComments
 } from 'react-icons/fa';
-import { apiRequest, logout, API_BASE_URL } from '../utils/auth';
+import { apiRequest, API_BASE_URL } from '../utils/auth';
 import { useState, useEffect } from 'react';
 
 function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -30,9 +31,13 @@ function Sidebar() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/login';
+  const handleLogout = async () => {
+    try {
+      await apiRequest(`${API_BASE_URL}/api/auth/logout`, { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    navigate('/login');
   };
 
   const getInitial = (name) => {
