@@ -15,6 +15,7 @@ model User {
   password     String
   phone        String?
   bio          String?
+  profilePhoto String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   refreshToken String?
