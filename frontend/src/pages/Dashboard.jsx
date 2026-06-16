@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { FaArrowUp, FaArrowDown, FaWallet, FaRobot } from 'react-icons/fa';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { apiRequest, logout, API_BASE_URL } from '../utils/auth';
-import Sidebar from '../components/Sidebar';
+import { apiRequest, API_BASE_URL } from '../utils/auth';
+import FinanceChatPanel from '../components/chat/FinanceChatPanel';
+import { useFinanceChat } from '../hooks/useFinanceChat';
 import '../styles/dashboard.css';
 
 function Dashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navigate = useNavigate();
 
   const [transactions, setTransactions] = useState([]);
@@ -48,6 +49,11 @@ function Dashboard() {
   const [gstAmount, setGstAmount] = useState('');
   const [gstRate, setGstRate] = useState('18');
   const [gstResult, setGstResult] = useState({ base: 0, tax: 0, total: 0 });
+
+  // AI Chat
+  const chat = useFinanceChat({
+    onUnauthorized: () => navigate('/login')
+  });
 
   // Monthly Spending State
   const [monthlyData, setMonthlyData] = useState([]);
@@ -242,84 +248,112 @@ function Dashboard() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-  };
-
-  const getInitial = (name) => {
-    return name ? name.charAt(0).toUpperCase() : 'U';
+  const handleLogout = async () => {
+    try {
+      await apiRequest(`${API_BASE_URL}/api/auth/logout`, { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    navigate('/login');
   };
 
   if (loading) {
     return (
-      <div className="dashboard">
-        <div className="dashboard-content">
-          <div style={{ textAlign: 'center', padding: '3rem' }}>Loading...</div>
-        </div>
-      </div>
+      <div style={{ textAlign: 'center', padding: '3rem' }}>Loading...</div>
     );
   }
 
   return (
-    <div className="dashboard-layout">
-      <Sidebar />
-      <main className="dashboard-content">
-        <div className="content-header">
+    <>
+      <div className="content-header">
           <div className="welcome-section">
             <h1>Welcome back, {user?.name || 'User'}!</h1>
             <p>Here's your financial overview</p>
           </div>
         </div>
-        <section className="summary-cards">
-          <div className="summary-card income">
-            <div className="card-title">Total Income</div>
-            <div className="card-amount">₹{summaryData.income.toLocaleString('en-IN')}</div>
-            <div className="card-quote">"Every rupee earned is a step towards freedom"</div>
-          </div>
-          <div className="summary-card expense">
-            <div className="card-title">Total Expense</div>
-            <div className="card-amount">₹{summaryData.expense.toLocaleString('en-IN')}</div>
-            <div className="card-quote">"Smart spending builds wealth"</div>
-          </div>
-          <div className="summary-card balance">
-            <div className="card-title">Balance</div>
-            <div className="card-amount">₹{summaryData.balance.toLocaleString('en-IN')}</div>
-            <div className="card-quote">"Your financial foundation"</div>
+        <section className="kpi-card">
+          <div className="kpi-card-inner">
+            <div className="kpi-item">
+              <div className="kpi-icon income-icon"><FaArrowUp /></div>
+              <div className="kpi-info">
+                <div className="kpi-label">Total Income</div>
+                <div className="kpi-value income-value">₹{summaryData.income.toLocaleString('en-IN')}</div>
+              </div>
+            </div>
+            <div className="kpi-divider"></div>
+            <div className="kpi-item">
+              <div className="kpi-icon expense-icon"><FaArrowDown /></div>
+              <div className="kpi-info">
+                <div className="kpi-label">Total Expense</div>
+                <div className="kpi-value expense-value">₹{summaryData.expense.toLocaleString('en-IN')}</div>
+              </div>
+            </div>
+            <div className="kpi-divider"></div>
+            <div className="kpi-item">
+              <div className="kpi-icon balance-icon"><FaWallet /></div>
+              <div className="kpi-info">
+                <div className="kpi-label">Balance</div>
+                <div className="kpi-value balance-value">₹{summaryData.balance.toLocaleString('en-IN')}</div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="charts-section">
-          <div className="chart-card">
-            <h3 className="chart-title">Income vs Expense</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
-              </PieChart>
-            </ResponsiveContainer>
+        <section className="dashboard-ai-section">
+          <div className="section-header-row">
+            <h2 className="section-title">
+              <FaRobot className="section-title-icon" />
+              AI Financial Assistant
+            </h2>
+            <p className="section-subtitle">Get personalized financial advice based on your transaction data</p>
           </div>
+          <FinanceChatPanel
+            errorMessage={chat.errorMessage}
+            isLoading={chat.isLoading}
+            messages={chat.messages}
+            onSendMessage={chat.sendMessage}
+            showSuggestions={chat.showSuggestions}
+            subtitle="Your personal finance advisor"
+            suggestions={chat.suggestions}
+            title="AI Financial Assistant"
+            variant="page"
+          />
+        </section>
 
-          <div className="chart-card">
-            <h3 className="chart-title">Monthly Spending</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
-                <Bar dataKey="amount" fill="#D4AF37" />
-              </BarChart>
-            </ResponsiveContainer>
+        <section className="charts-card">
+          <div className="charts-card-inner">
+            <div className="chart-block">
+              <h3 className="chart-title">Income vs Expense</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="chart-divider"></div>
+            <div className="chart-block">
+              <h3 className="chart-title">Monthly Spending</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} />
+                  <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
+                  <Bar dataKey="amount" fill="#0f766e" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </section>
 
@@ -372,101 +406,78 @@ function Dashboard() {
             <div className="tool-card">
               <h3>SIP Calculator</h3>
               <div className="sip-inputs">
-                <input type="number" value={sipAmount} onChange={(e) => setSipAmount(e.target.value)} placeholder="Monthly Investment" className="tool-input" />
-                <input type="number" value={sipRate} onChange={(e) => setSipRate(e.target.value)} placeholder="Annual Return (%)" className="tool-input" />
-                <input type="number" value={sipYears} onChange={(e) => setSipYears(e.target.value)} placeholder="Years" className="tool-input" />
-                <button className="calc-sip-btn" onClick={calculateSIP}>Calculate</button>
+                <input type="number" value={sipAmount} onChange={(e) => setSipAmount(e.target.value)} placeholder="Monthly Investment (₹)" className="tool-input" />
+                <input type="number" value={sipRate} onChange={(e) => setSipRate(e.target.value)} placeholder="Expected Return (% p.a.)" className="tool-input" />
+                <input type="number" value={sipYears} onChange={(e) => setSipYears(e.target.value)} placeholder="Time Period (Years)" className="tool-input" />
+                <button onClick={calculateSIP} className="calc-sip-btn">Calculate SIP</button>
               </div>
-              <div className="sip-result">
-                <p>Invested: <span>₹{sipResult.invested.toLocaleString('en-IN')}</span></p>
-                <p>Returns: <span>₹{sipResult.returns.toLocaleString('en-IN')}</span></p>
-                <p>Total: <span>₹{sipResult.total.toLocaleString('en-IN')}</span></p>
-              </div>
+              {(sipResult.invested > 0) && (
+                <div className="sip-result">
+                  <p>Invested Amount: <span>₹{sipResult.invested.toLocaleString('en-IN')}</span></p>
+                  <p>Est. Returns: <span>₹{sipResult.returns.toLocaleString('en-IN')}</span></p>
+                  <p>Total Value: <span>₹{sipResult.total.toLocaleString('en-IN')}</span></p>
+                </div>
+              )}
             </div>
 
             <div className="tool-card">
               <h3>EMI Calculator</h3>
               <div className="sip-inputs">
-                <input type="number" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)} placeholder="Loan Amount" className="tool-input" />
-                <input type="number" value={loanRate} onChange={(e) => setLoanRate(e.target.value)} placeholder="Interest Rate (%)" className="tool-input" />
+                <input type="number" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)} placeholder="Loan Amount (₹)" className="tool-input" />
+                <input type="number" value={loanRate} onChange={(e) => setLoanRate(e.target.value)} placeholder="Interest Rate (% p.a.)" className="tool-input" />
                 <input type="number" value={loanTenure} onChange={(e) => setLoanTenure(e.target.value)} placeholder="Tenure (Years)" className="tool-input" />
-                <button className="calc-emi-btn" onClick={calculateEMI}>Calculate EMI</button>
+                <button onClick={calculateEMI} className="calc-emi-btn">Calculate EMI</button>
               </div>
-              <div className="sip-result">
-                <p>Monthly EMI: <span>₹{emiResult.emi.toLocaleString('en-IN')}</span></p>
-                <p>Total Interest: <span>₹{emiResult.interest.toLocaleString('en-IN')}</span></p>
-                <p>Total Payment: <span>₹{emiResult.total.toLocaleString('en-IN')}</span></p>
-              </div>
+              {(emiResult.emi > 0) && (
+                <div className="sip-result">
+                  <p>Monthly EMI: <span>₹{emiResult.emi.toLocaleString('en-IN')}</span></p>
+                  <p>Total Interest: <span>₹{emiResult.interest.toLocaleString('en-IN')}</span></p>
+                  <p>Total Payment: <span>₹{emiResult.total.toLocaleString('en-IN')}</span></p>
+                </div>
+              )}
             </div>
 
             <div className="tool-card">
               <h3>FD Calculator</h3>
               <div className="sip-inputs">
-                <input type="number" value={fdAmount} onChange={(e) => setFdAmount(e.target.value)} placeholder="Principal Amount" className="tool-input" />
-                <input type="number" value={fdRate} onChange={(e) => setFdRate(e.target.value)} placeholder="Interest Rate (%)" className="tool-input" />
-                <input type="number" value={fdYears} onChange={(e) => setFdYears(e.target.value)} placeholder="Years" className="tool-input" />
-                <button className="calc-fd-btn" onClick={calculateFD}>Calculate FD</button>
+                <input type="number" value={fdAmount} onChange={(e) => setFdAmount(e.target.value)} placeholder="Principal Amount (₹)" className="tool-input" />
+                <input type="number" value={fdRate} onChange={(e) => setFdRate(e.target.value)} placeholder="Interest Rate (% p.a.)" className="tool-input" />
+                <input type="number" value={fdYears} onChange={(e) => setFdYears(e.target.value)} placeholder="Time Period (Years)" className="tool-input" />
+                <button onClick={calculateFD} className="calc-fd-btn">Calculate FD</button>
               </div>
-              <div className="sip-result">
-                <p>Principal: <span>₹{fdResult.principal.toLocaleString('en-IN')}</span></p>
-                <p>Interest: <span>₹{fdResult.interest.toLocaleString('en-IN')}</span></p>
-                <p>Maturity: <span>₹{fdResult.maturity.toLocaleString('en-IN')}</span></p>
-              </div>
+              {(fdResult.maturity > 0) && (
+                <div className="sip-result">
+                  <p>Principal: <span>₹{fdResult.principal.toLocaleString('en-IN')}</span></p>
+                  <p>Interest Earned: <span>₹{fdResult.interest.toLocaleString('en-IN')}</span></p>
+                  <p>Maturity Amount: <span>₹{fdResult.maturity.toLocaleString('en-IN')}</span></p>
+                </div>
+              )}
             </div>
 
             <div className="tool-card">
               <h3>GST Calculator</h3>
               <div className="sip-inputs">
-                <input type="number" value={gstAmount} onChange={(e) => setGstAmount(e.target.value)} placeholder="Amount" className="tool-input" />
+                <input type="number" value={gstAmount} onChange={(e) => setGstAmount(e.target.value)} placeholder="Amount (₹)" className="tool-input" />
                 <select value={gstRate} onChange={(e) => setGstRate(e.target.value)} className="tool-input">
-                  <option value="5">5% GST</option>
-                  <option value="12">12% GST</option>
-                  <option value="18">18% GST</option>
-                  <option value="28">28% GST</option>
+                  <option value="0">0%</option>
+                  <option value="5">5%</option>
+                  <option value="12">12%</option>
+                  <option value="18">18%</option>
+                  <option value="28">28%</option>
                 </select>
-                <button className="calc-gst-btn" onClick={calculateGST}>Calculate GST</button>
+                <button onClick={calculateGST} className="calc-gst-btn">Calculate GST</button>
               </div>
-              <div className="sip-result">
-                <p>Base Amount: <span>₹{gstResult.base.toLocaleString('en-IN')}</span></p>
-                <p>GST Amount: <span>₹{gstResult.tax.toLocaleString('en-IN')}</span></p>
-                <p>Total Amount: <span>₹{gstResult.total.toLocaleString('en-IN')}</span></p>
-              </div>
+              {(gstResult.total > 0) && (
+                <div className="sip-result">
+                  <p>Base Amount: <span>₹{gstResult.base.toLocaleString('en-IN')}</span></p>
+                  <p>GST Amount: <span>₹{gstResult.tax.toLocaleString('en-IN')}</span></p>
+                  <p>Total Amount: <span>₹{gstResult.total.toLocaleString('en-IN')}</span></p>
+                </div>
+              )}
             </div>
           </div>
         </section>
-
-        <section className="transactions-section">
-          <div className="section-header">
-            <h2 className="section-title">Recent Transactions</h2>
-            <div className="action-buttons">
-              <Link to="/add-transaction" className="btn btn-primary">Add Transaction</Link>
-              <Link to="/transactions" className="btn btn-secondary">View All</Link>
-            </div>
-          </div>
-
-          {recentTransactions.length > 0 ? (
-            <ul className="transactions-list">
-              {recentTransactions.map((transaction) => (
-                <li key={transaction.id} className="transaction-item">
-                  <div className="transaction-info">
-                    <h4>{transaction.description}</h4>
-                    <p>{transaction.date}</p>
-                  </div>
-                  <div className={`transaction-amount ${transaction.type}`}>
-                    {transaction.amount > 0 ? '+' : ''}₹{Math.abs(transaction.amount).toLocaleString('en-IN')}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="empty-state">
-              <p>No transactions yet</p>
-              <Link to="/add-transaction" className="btn btn-primary">Add Your First Transaction</Link>
-            </div>
-          )}
-        </section>
-      </main>
-    </div>
+    </>
   );
 }
 
