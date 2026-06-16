@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:3333';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333';
 
 export const apiRequest = async (url, options = {}) => {
   const config = {
@@ -20,8 +20,5 @@ export const logout = async () => {
     });
   } catch (error) {
     console.error('Logout error:', error);
-  } finally {
-    // Force complete page reload to clear any cached state
-    window.location.replace('/login');
   }
 };
