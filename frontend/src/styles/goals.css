@@ -1,396 +1,541 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.goals-page {
-  font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #ffffff 0%, #faf8f3 100%);
-  min-height: 100vh;
-}
-
 .page-header {
-  margin-bottom: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  opacity: 0;
-  transform: translateY(-20px);
-  animation: headerFadeIn 0.6s ease forwards;
-}
-
-@keyframes headerFadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  margin-bottom: 1rem;
 }
 
 .page-header h1 {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   color: #1a1a1a;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
 }
 
 .page-header p {
-  color: #666;
+  color: #888;
+  font-size: 0.92rem;
+}
+
+/* Summary bar */
+.gl-summary-bar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 1.2rem 1.5rem;
+  box-shadow: 0 8px 32px rgba(15, 118, 110, 0.1);
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  animation: glFadeUp 0.5s ease forwards;
+  opacity: 0;
+  transform: translateY(20px);
+  margin-bottom: 1rem;
+}
+
+@keyframes glFadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.gl-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0 0.5rem;
+}
+
+.gl-summary-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.gl-summary-icon.target { background: rgba(15, 118, 110, 0.12); color: #0f766e; }
+.gl-summary-icon.saved { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+.gl-summary-icon.count { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
+
+.gl-summary-label {
+  font-size: 0.72rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+  margin-bottom: 0.1rem;
+}
+
+.gl-summary-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
+}
+
+.gl-summary-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(15, 118, 110, 0.1);
+}
+
+/* Toolbar */
+.gl-toolbar {
+  margin-bottom: 1.5rem;
+  animation: glFadeUp 0.5s ease 0.1s forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.gl-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(15, 118, 110, 0.3);
+}
+
+.gl-add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(15, 118, 110, 0.4);
+}
+
+/* Loading */
+.gl-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  color: #888;
+  gap: 1rem;
+}
+
+.gl-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(15, 118, 110, 0.15);
+  border-top-color: #0f766e;
+  border-radius: 50%;
+  animation: glSpin 0.7s linear infinite;
+}
+
+@keyframes glSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Grid */
+.gl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Card */
+.gl-card {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(15, 118, 110, 0.1);
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  opacity: 0;
+  transform: translateY(30px);
+  animation: glCardSlide 0.5s ease forwards;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes glCardSlide {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.gl-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 20px 50px rgba(15, 118, 110, 0.18);
+  border-color: rgba(15, 118, 110, 0.25);
+}
+
+.gl-card-accent {
+  height: 4px;
+  flex-shrink: 0;
+}
+
+.gl-card-body {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.gl-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.gl-card-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.gl-card-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.gl-action-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.78rem;
+  transition: all 0.3s ease;
+  background: transparent;
+  color: #aaa;
+}
+
+.gl-action-btn.edit:hover {
+  background: rgba(15, 118, 110, 0.12);
+  color: #0f766e;
+  transform: scale(1.1);
+}
+
+.gl-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+.gl-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 1.25rem;
+}
+
+/* Progress */
+.gl-progress-section {
+  margin-bottom: 1.25rem;
+}
+
+.gl-progress-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+}
+
+.gl-progress-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.8s ease;
+}
+
+.gl-progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gl-progress-pct {
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.gl-progress-done {
+  font-size: 0.78rem;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.gl-progress-left {
+  font-size: 0.78rem;
+  color: #888;
   font-weight: 500;
 }
 
-.add-goal-btn {
-  align-self: flex-start;
-  padding: 0.875rem 1.75rem;
-  background: linear-gradient(135deg, #D4AF37 0%, #E8C85A 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 0.95rem;
+/* Amounts row */
+.gl-amounts {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  background: rgba(15, 118, 110, 0.04);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.gl-amount-item {
+  text-align: center;
+}
+
+.gl-amount-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  margin-bottom: 0.15rem;
 }
 
-.add-goal-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.45);
+.gl-amount-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a1a;
 }
 
-.add-goal-btn:active {
-  transform: translateY(-1px) scale(1.01);
+.gl-amount-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(15, 118, 110, 0.1);
 }
 
-.form-modal {
+/* Deadline */
+.gl-deadline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: #888;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(15, 118, 110, 0.06);
+  margin-top: auto;
+}
+
+.gl-deadline-icon {
+  color: #0f766e;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.gl-deadline-date {
+  margin-left: auto;
+  font-weight: 600;
+  color: #666;
+}
+
+/* Empty */
+.gl-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(15, 118, 110, 0.08);
+  border: 1px solid rgba(15, 118, 110, 0.1);
+  animation: glFadeUp 0.5s ease forwards;
+}
+
+.gl-empty-icon {
+  font-size: 3rem;
+  color: #0f766e;
+  margin-bottom: 1rem;
+  opacity: 0.3;
+}
+
+.gl-empty h3 {
+  font-size: 1.3rem;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.gl-empty p {
+  color: #888;
+  margin-bottom: 1.5rem;
+}
+
+/* Modal */
+.gl-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: modalFadeIn 0.3s ease;
+  animation: glFadeIn 0.25s ease;
 }
 
-@keyframes modalFadeIn {
+@keyframes glFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-.form-container {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(212, 175, 55, 0.2);
-  width: 90%;
-  max-width: 500px;
-  border: 1px solid rgba(212, 175, 55, 0.1);
-  animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes modalSlideIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.form-container h2 {
-  color: #1a1a1a;
-  margin-bottom: 2rem;
-  font-size: 1.75rem;
-  font-weight: 700;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #333;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  border: 2px solid #e8e8e8;
-  border-radius: 10px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  background: #fafafa;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: #D4AF37;
-  background: white;
-  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
-  transform: scale(1.01);
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.save-btn {
-  flex: 1;
-  padding: 1rem;
-  background: linear-gradient(135deg, #D4AF37 0%, #E8C85A 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-}
-
-.save-btn:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.45);
-}
-
-.cancel-btn {
-  flex: 1;
-  padding: 1rem;
-  background: transparent;
-  color: #666;
-  border: 2px solid #e8e8e8;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.cancel-btn:hover {
-  border-color: #D4AF37;
-  color: #D4AF37;
-  transform: translateY(-2px);
-}
-
-.goals-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1.5rem;
-}
-
-.goal-card {
+.gl-modal {
   background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.1);
-  border: 1px solid rgba(212, 175, 55, 0.15);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  opacity: 0;
-  transform: translateY(30px);
-  animation: cardSlideIn 0.6s ease forwards;
+  backdrop-filter: blur(24px);
+  border-radius: 20px;
+  padding: 2.25rem;
+  width: 90%;
+  max-width: 520px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(15, 118, 110, 0.1);
+  animation: glModalSlide 0.3s ease;
+  position: relative;
 }
 
-.goal-card:nth-child(1) { animation-delay: 0.1s; }
-.goal-card:nth-child(2) { animation-delay: 0.2s; }
-.goal-card:nth-child(3) { animation-delay: 0.3s; }
-.goal-card:nth-child(4) { animation-delay: 0.4s; }
-.goal-card:nth-child(5) { animation-delay: 0.5s; }
-.goal-card:nth-child(6) { animation-delay: 0.6s; }
-
-@keyframes cardSlideIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes glModalSlide {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.goal-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 50px rgba(212, 175, 55, 0.2);
-  border-color: rgba(212, 175, 55, 0.3);
-}
-
-.goal-header {
+.gl-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  color: #999;
+  cursor: pointer;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.goal-header h3 {
-  color: #1a1a1a;
+.gl-modal-close:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.gl-modal h2 {
   font-size: 1.3rem;
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
   font-weight: 700;
 }
 
-.goal-actions {
-  display: flex;
-  gap: 0.5rem;
+.gl-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
-.edit-btn,
-.delete-btn {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  color: #666;
+.gl-form-group {
+  margin-bottom: 1.1rem;
 }
 
-.edit-btn:hover {
-  background: rgba(212, 175, 55, 0.15);
-  color: #D4AF37;
-  transform: scale(1.1);
-}
-
-.delete-btn:hover {
-  background: rgba(220, 53, 69, 0.15);
-  color: #dc3545;
-  transform: scale(1.1);
-}
-
-.goal-amounts {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-}
-
-.amount-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.amount-item .label {
-  color: #888;
+.gl-form-group label {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: #555;
   font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-.amount-item .value {
-  color: #1a1a1a;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.amount-item:first-child .value {
-  color: #D4AF37;
-}
-
-.progress-section {
-  margin-bottom: 1rem;
-}
-
-.progress-bar {
+.gl-form-group input {
   width: 100%;
-  height: 12px;
-  background: #f0f0f0;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  border: 2px solid #eef2f6;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  background: #f8fafb;
+  color: #333;
+  font-family: inherit;
 }
 
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(135deg, #D4AF37 0%, #E8C85A 100%);
-  border-radius: 6px;
-  transition: width 0.5s ease;
-  width: 0;
-  animation: progressFill 1s ease forwards;
+.gl-form-group input:focus {
+  outline: none;
+  border-color: #0f766e;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.08);
 }
 
-@keyframes progressFill {
-  to { width: var(--progress); }
+.gl-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
-.progress-text {
-  color: #D4AF37;
+.gl-save-btn {
+  flex: 1;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
   font-weight: 700;
   font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(15, 118, 110, 0.3);
 }
 
-.goal-deadline {
+.gl-save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(15, 118, 110, 0.4);
+}
+
+.gl-cancel-btn {
+  flex: 1;
+  padding: 0.75rem;
+  background: transparent;
   color: #888;
+  border: 2px solid #eef2f6;
+  border-radius: 10px;
+  font-weight: 600;
   font-size: 0.9rem;
-  text-align: center;
-  padding-top: 1rem;
-  border-top: 1px solid #f0f0f0;
-  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  max-width: 500px;
-  margin: 0 auto;
-  opacity: 0;
-  animation: emptyStateFade 0.6s ease forwards;
+.gl-cancel-btn:hover {
+  border-color: #0f766e;
+  color: #0f766e;
 }
 
-@keyframes emptyStateFade {
-  to { opacity: 1; }
-}
+/* Responsive */
+@media (max-width: 992px) {
+  .gl-summary-bar {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
 
-.empty-state h3 {
-  color: #1a1a1a;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  font-weight: 700;
-}
-
-.empty-state p {
-  color: #666;
-  margin-bottom: 2rem;
+  .gl-summary-divider {
+    width: auto;
+    height: 1px;
+    margin: 0 1rem;
+  }
 }
 
 @media (max-width: 768px) {
-  .page-header {
-    align-items: flex-start;
-  }
-  
-  .page-header h1 {
-    font-size: 2rem;
-  }
-  
-  .add-goal-btn {
-    width: 100%;
-  }
-  
-  .goals-grid {
+  .gl-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
   }
-  
-  .form-container {
-    padding: 2rem 1.5rem;
+
+  .gl-form-row {
+    grid-template-columns: 1fr;
   }
-  
-  .form-actions {
-    flex-direction: column;
-  }
-  
-  .goal-amounts {
-    flex-direction: column;
-    gap: 1rem;
+
+  .gl-modal {
+    padding: 1.75rem;
   }
 }

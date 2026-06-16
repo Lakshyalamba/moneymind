@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaBullseye, FaEdit, FaTrash, FaTimes, FaCheckCircle, FaCalendarAlt, FaPlus, FaTrophy, FaRocket, FaHourglassHalf } from 'react-icons/fa';
 import { apiRequest, API_BASE_URL } from '../utils/auth';
-import Sidebar from '../components/Sidebar';
 import '../styles/goals.css';
 
 function Goals() {
   const navigate = useNavigate();
   const [goals, setGoals] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [formData, setFormData] = useState({
@@ -26,21 +26,51 @@ function Goals() {
       const response = await apiRequest(`${API_BASE_URL}/api/goals`);
       if (response.ok) {
         const data = await response.json();
-        setGoals(data);
+        setGoals(Array.isArray(data) ? data : []);
       } else if (response.status === 401) {
         navigate('/login');
       }
     } catch (error) {
       console.error('Error fetching goals:', error);
       navigate('/login');
+    } finally {
+      setLoading(false);
     }
   };
 
+  const summary = useMemo(() => {
+    const totalTarget = goals.reduce((s, g) => s + (parseFloat(g.targetAmount) || 0), 0);
+    const totalSaved = goals.reduce((s, g) => s + (parseFloat(g.currentAmount) || 0), 0);
+    const completed = goals.filter(g => calculateProgress(g.currentAmount, g.targetAmount) >= 100).length;
+    return { totalTarget, totalSaved, completed, total: goals.length };
+  }, [goals]);
+
+  function calculateProgress(current, target) {
+    return target > 0 ? Math.min((parseFloat(current) / parseFloat(target)) * 100, 100) : 0;
+  }
+
+  function daysRemaining(deadline) {
+    const diff = new Date(deadline) - new Date();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }
+
+  function getProgressColor(pct) {
+    if (pct >= 100) return '#10b981';
+    if (pct >= 75) return '#14b8a6';
+    if (pct >= 50) return '#f59e0b';
+    if (pct >= 25) return '#f97316';
+    return '#ef4444';
+  }
+
+  function getProgressEmoji(pct) {
+    if (pct >= 100) return <FaTrophy />;
+    if (pct >= 75) return <FaRocket />;
+    if (pct >= 50) return <FaHourglassHalf />;
+    return <FaBullseye />;
+  }
+
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -82,15 +112,17 @@ function Goals() {
   };
 
   const handleDelete = async (id) => {
-    try {
-      const response = await apiRequest(`${API_BASE_URL}/api/goals/${id}`, {
-        method: 'DELETE'
-      });
-      if (response.ok) {
-        fetchGoals();
+    if (window.confirm('Are you sure you want to delete this goal?')) {
+      try {
+        const response = await apiRequest(`${API_BASE_URL}/api/goals/${id}`, {
+          method: 'DELETE'
+        });
+        if (response.ok) {
+          fetchGoals();
+        }
+      } catch (error) {
+        console.error('Error deleting goal:', error);
       }
-    } catch (error) {
-      console.error('Error deleting goal:', error);
     }
   };
 
@@ -100,134 +132,167 @@ function Goals() {
     setEditingGoal(null);
   };
 
-  const calculateProgress = (current, target) => {
-    return Math.min((current / target) * 100, 100);
-  };
-
   return (
-    <div className="dashboard-layout">
-      <Sidebar />
-      <main className="dashboard-content">
-        <div className="page-header">
-          <h1>Savings Goals</h1>
-          <p>Track and achieve your financial objectives</p>
-          <button
-            className="add-goal-btn"
-            onClick={() => setShowForm(true)}
-          >
-            Add New Goal
-          </button>
+    <>
+      <div className="page-header">
+        <h1>Savings Goals</h1>
+        <p>Track and achieve your financial objectives</p>
+      </div>
+
+      {!loading && goals.length > 0 && (
+        <div className="gl-summary-bar">
+          <div className="gl-summary-item">
+            <div className="gl-summary-icon target"><FaBullseye /></div>
+            <div>
+              <div className="gl-summary-label">Total Target</div>
+              <div className="gl-summary-value">₹{summary.totalTarget.toLocaleString('en-IN')}</div>
+            </div>
+          </div>
+          <div className="gl-summary-divider"></div>
+          <div className="gl-summary-item">
+            <div className="gl-summary-icon saved"><FaRocket /></div>
+            <div>
+              <div className="gl-summary-label">Total Saved</div>
+              <div className="gl-summary-value">₹{summary.totalSaved.toLocaleString('en-IN')}</div>
+            </div>
+          </div>
+          <div className="gl-summary-divider"></div>
+          <div className="gl-summary-item">
+            <div className="gl-summary-icon count"><FaCheckCircle /></div>
+            <div>
+              <div className="gl-summary-label">Completed</div>
+              <div className="gl-summary-value">{summary.completed}/{summary.total}</div>
+            </div>
+          </div>
         </div>
+      )}
+
+      <div className="gl-toolbar">
+        <button className="gl-add-btn" onClick={() => setShowForm(true)}>
+          <FaPlus /> Add New Goal
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="gl-loading">
+          <div className="gl-spinner"></div>
+          <p>Loading your goals...</p>
+        </div>
+      ) : (
+        <>
+          <div className="gl-grid">
+            {goals.map((goal, i) => {
+              const pct = calculateProgress(goal.currentAmount, goal.targetAmount);
+              const days = daysRemaining(goal.deadline);
+              const color = getProgressColor(pct);
+              const remaining = (parseFloat(goal.targetAmount) - parseFloat(goal.currentAmount)).toFixed(2);
+
+              return (
+                <div key={goal.id} className="gl-card" style={{ animationDelay: `${0.1 + i * 0.08}s` }}>
+                  <div className="gl-card-accent" style={{ background: `linear-gradient(90deg, ${color}, ${color}dd)` }}></div>
+                  <div className="gl-card-body">
+                    <div className="gl-card-top">
+                      <div className="gl-card-icon-wrap" style={{ background: `${color}18`, color }}>
+                        {getProgressEmoji(pct)}
+                      </div>
+                      <div className="gl-card-actions">
+                        <button onClick={() => handleEdit(goal)} className="gl-action-btn edit" title="Edit"><FaEdit /></button>
+                        <button onClick={() => handleDelete(goal.id)} className="gl-action-btn delete" title="Delete"><FaTrash /></button>
+                      </div>
+                    </div>
+
+                    <h3 className="gl-card-title">{goal.title}</h3>
+
+                    <div className="gl-progress-section">
+                      <div className="gl-progress-bar" style={{ background: `${color}18` }}>
+                        <div
+                          className="gl-progress-fill"
+                          style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${color}, ${color}dd)` }}
+                        ></div>
+                      </div>
+                      <div className="gl-progress-info">
+                        <span className="gl-progress-pct" style={{ color }}>{pct.toFixed(1)}%</span>
+                        {pct >= 100 ? (
+                          <span className="gl-progress-done">Goal achieved!</span>
+                        ) : (
+                          <span className="gl-progress-left">₹{parseFloat(remaining).toLocaleString('en-IN')} left</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="gl-amounts">
+                      <div className="gl-amount-item">
+                        <span className="gl-amount-label">Target</span>
+                        <span className="gl-amount-value">₹{parseFloat(goal.targetAmount).toLocaleString('en-IN')}</span>
+                      </div>
+                      <div className="gl-amount-divider"></div>
+                      <div className="gl-amount-item">
+                        <span className="gl-amount-label">Saved</span>
+                        <span className="gl-amount-value">₹{parseFloat(goal.currentAmount).toLocaleString('en-IN')}</span>
+                      </div>
+                    </div>
+
+                    <div className="gl-deadline">
+                      <FaCalendarAlt className="gl-deadline-icon" />
+                      <span>
+                        {days > 0 ? `${days} days remaining` : days === 0 ? 'Due today' : 'Overdue'}
+                      </span>
+                      <span className="gl-deadline-date">{new Date(goal.deadline).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {goals.length === 0 && (
+            <div className="gl-empty">
+              <div className="gl-empty-icon"><FaBullseye /></div>
+              <h3>No goals yet</h3>
+              <p>Start by creating your first savings goal</p>
+              <button className="gl-add-btn" onClick={() => setShowForm(true)}>
+                <FaPlus /> Create Your First Goal
+              </button>
+            </div>
+          )}
+        </>
+      )}
 
       {showForm && (
-        <div className="form-modal">
-          <div className="form-container">
+        <div className="gl-modal-overlay" onClick={resetForm}>
+          <div className="gl-modal" onClick={e => e.stopPropagation()}>
+            <button className="gl-modal-close" onClick={resetForm}><FaTimes /></button>
             <h2>{editingGoal ? 'Edit Goal' : 'Add New Goal'}</h2>
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
+              <div className="gl-form-group">
                 <label>Goal Name</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  required
-                />
+                <input type="text" name="title" value={formData.title} onChange={handleInputChange} placeholder="e.g., Emergency Fund" required />
               </div>
-              <div className="form-group">
-                <label>Target Amount</label>
-                <input
-                  type="number"
-                  name="targetAmount"
-                  value={formData.targetAmount}
-                  onChange={handleInputChange}
-                  step="0.01"
-                  required
-                />
+              <div className="gl-form-row">
+                <div className="gl-form-group">
+                  <label>Target Amount (₹)</label>
+                  <input type="number" name="targetAmount" value={formData.targetAmount} onChange={handleInputChange} step="0.01" placeholder="1,00,000" required />
+                </div>
+                <div className="gl-form-group">
+                  <label>Saved So Far (₹)</label>
+                  <input type="number" name="currentAmount" value={formData.currentAmount} onChange={handleInputChange} step="0.01" placeholder="25,000" required />
+                </div>
               </div>
-              <div className="form-group">
-                <label>Current Saved Amount</label>
-                <input
-                  type="number"
-                  name="currentAmount"
-                  value={formData.currentAmount}
-                  onChange={handleInputChange}
-                  step="0.01"
-                  required
-                />
-              </div>
-              <div className="form-group">
+              <div className="gl-form-group">
                 <label>Deadline</label>
-                <input
-                  type="date"
-                  name="deadline"
-                  value={formData.deadline}
-                  onChange={handleInputChange}
-                  required
-                />
+                <input type="date" name="deadline" value={formData.deadline} onChange={handleInputChange} required />
               </div>
-              <div className="form-actions">
-                <button type="submit" className="save-btn">
+              <div className="gl-form-actions">
+                <button type="submit" className="gl-save-btn">
                   {editingGoal ? 'Update Goal' : 'Create Goal'}
                 </button>
-                <button type="button" className="cancel-btn" onClick={resetForm}>
-                  Cancel
-                </button>
+                <button type="button" className="gl-cancel-btn" onClick={resetForm}>Cancel</button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      <div className="goals-grid">
-        {goals.map((goal) => (
-          <div key={goal.id} className="goal-card">
-            <div className="goal-header">
-              <h3>{goal.title}</h3>
-              <div className="goal-actions">
-                <button onClick={() => handleEdit(goal)} className="edit-btn"><FaEdit /></button>
-                <button onClick={() => handleDelete(goal.id)} className="delete-btn"><FaTrash /></button>
-              </div>
-            </div>
-            <div className="goal-amounts">
-              <div className="amount-item">
-                <span className="label">Target:</span>
-                <span className="value">${goal.targetAmount}</span>
-              </div>
-              <div className="amount-item">
-                <span className="label">Saved:</span>
-                <span className="value">${goal.currentAmount}</span>
-              </div>
-            </div>
-            <div className="progress-section">
-              <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{ width: `${calculateProgress(goal.currentAmount, goal.targetAmount)}%` }}
-                ></div>
-              </div>
-              <span className="progress-text">
-                {calculateProgress(goal.currentAmount, goal.targetAmount).toFixed(1)}%
-              </span>
-            </div>
-            <div className="goal-deadline">
-              <span>Deadline: {new Date(goal.deadline).toLocaleDateString()}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {goals.length === 0 && (
-        <div className="empty-state">
-          <h3>No goals yet</h3>
-          <p>Start by creating your first savings goal</p>
-          <button className="add-goal-btn" onClick={() => setShowForm(true)}>
-            Create Your First Goal
-          </button>
-        </div>
-      )}
-      </main>
-    </div>
+    </>
   );
 }
 
