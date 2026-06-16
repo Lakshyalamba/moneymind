@@ -5,8 +5,8 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
+  font-family: 'Inter', 'Arial', sans-serif;
+  background-color: #f7fbfb;
 }
 
 .container {
@@ -20,17 +20,19 @@ body {
 .card {
   background: white;
   padding: 40px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(15, 118, 110, 0.1);
   width: 100%;
   max-width: 400px;
+  border: 1px solid rgba(15, 118, 110, 0.08);
 }
 
 .title {
   text-align: center;
   margin-bottom: 30px;
-  color: #333;
+  color: #14213d;
   font-size: 24px;
+  font-weight: 700;
 }
 
 .form {
@@ -46,34 +48,41 @@ body {
 
 .label {
   margin-bottom: 5px;
-  color: #555;
-  font-weight: bold;
+  color: #344054;
+  font-weight: 600;
 }
 
 .input {
   padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
   font-size: 16px;
+  transition: all 0.3s ease;
+  background: #fafafa;
 }
 
 .input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
 .button {
   padding: 12px;
-  background-color: #007bff;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(15, 118, 110, 0.3);
 }
 
 .button:hover {
-  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(15, 118, 110, 0.4);
 }
 
 .link {
@@ -82,8 +91,9 @@ body {
 }
 
 .link a {
-  color: #007bff;
+  color: #0f766e;
   text-decoration: none;
+  font-weight: 500;
 }
 
 .link a:hover {
