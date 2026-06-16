@@ -4,7 +4,7 @@
   height: 100%;
   min-height: 0;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  border: 1px solid rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(15, 118, 110, 0.12);
   border-radius: 16px;
   box-shadow: 0 18px 40px rgba(44, 62, 80, 0.08);
   overflow: hidden;
@@ -24,12 +24,12 @@
   gap: 1rem;
   padding: 1.25rem 1.5rem;
   background: #ffffff;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.12);
+  border-bottom: 1px solid rgba(15, 118, 110, 0.12);
   flex-shrink: 0;
 }
 
 .finance-chat--floating .finance-chat__header {
-  background: linear-gradient(135deg, #D4AF37, #F4D03F);
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
   color: #ffffff;
   border-bottom: none;
 }
@@ -43,7 +43,7 @@
 
 .finance-chat__header-icon {
   font-size: 2rem;
-  color: #D4AF37;
+  color: #0f766e;
   flex-shrink: 0;
 }
 
@@ -142,7 +142,7 @@
 }
 
 .finance-chat__messages::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.75);
+  background: rgba(15, 118, 110, 0.75);
   border-radius: 999px;
 }
 
@@ -159,7 +159,7 @@
 
 .finance-chat__empty-icon {
   font-size: 2rem;
-  color: #D4AF37;
+  color: #0f766e;
 }
 
 .finance-chat__message {
@@ -190,7 +190,7 @@
 .finance-chat__message-icon {
   margin-top: 0.35rem;
   font-size: 1.6rem;
-  color: #D4AF37;
+  color: #0f766e;
   flex-shrink: 0;
 }
 
@@ -206,8 +206,8 @@
 }
 
 .finance-chat__message--user .finance-chat__message-bubble {
-  background: linear-gradient(135deg, #D4AF37 0%, #f4e5a1 100%);
-  color: #2c3e50;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: #ffffff;
   border-bottom-right-radius: 4px;
 }
 
@@ -240,7 +240,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #D4AF37;
+  background: #0f766e;
   animation: finance-chat-typing 1.4s infinite ease-in-out;
 }
 
@@ -298,7 +298,7 @@
   align-items: center;
   gap: 0.65rem;
   padding: 0.85rem 1rem;
-  border: 1px solid rgba(212, 175, 55, 0.4);
+  border: 1px solid rgba(15, 118, 110, 0.4);
   border-radius: 12px;
   background: #ffffff;
   color: #2c3e50;
@@ -309,8 +309,8 @@
 
 .finance-chat__suggestion:hover:not(:disabled) {
   transform: translateY(-2px);
-  border-color: #D4AF37;
-  box-shadow: 0 10px 20px rgba(212, 175, 55, 0.12);
+  border-color: #0f766e;
+  box-shadow: 0 10px 20px rgba(15, 118, 110, 0.12);
 }
 
 .finance-chat__suggestion:disabled {
@@ -319,13 +319,13 @@
 }
 
 .finance-chat__suggestion-icon {
-  color: #D4AF37;
+  color: #0f766e;
   flex-shrink: 0;
 }
 
 .finance-chat__composer {
   padding: 1rem;
-  border-top: 1px solid rgba(212, 175, 55, 0.12);
+  border-top: 1px solid rgba(15, 118, 110, 0.12);
   background: rgba(255, 255, 255, 0.92);
   flex-shrink: 0;
 }
@@ -342,7 +342,7 @@
   max-height: 132px;
   resize: none;
   padding: 1rem 1.1rem;
-  border: 2px solid rgba(212, 175, 55, 0.16);
+  border: 2px solid rgba(15, 118, 110, 0.16);
   border-radius: 22px;
   font: inherit;
   background: #ffffff;
@@ -352,8 +352,8 @@
 
 .finance-chat__composer-input:focus {
   outline: none;
-  border-color: #D4AF37;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
 }
 
 .finance-chat__composer-input:disabled {
@@ -369,17 +369,17 @@
   height: 52px;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, #D4AF37 0%, #f4e5a1 100%);
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
   color: #ffffff;
   cursor: pointer;
-  box-shadow: 0 8px 18px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.25);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   flex-shrink: 0;
 }
 
 .finance-chat__composer-send:hover:not(:disabled) {
   transform: scale(1.04);
-  box-shadow: 0 12px 22px rgba(212, 175, 55, 0.32);
+  box-shadow: 0 12px 22px rgba(15, 118, 110, 0.32);
 }
 
 .finance-chat__composer-send:disabled {
