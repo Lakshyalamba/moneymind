@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "prisma generate",
-    "start": "node src/bootstrap.js",
+    "build": "prisma db push --skip-generate && prisma generate",
+    "start": "prisma db push --skip-generate && node prisma/seed.js && node src/bootstrap.js",
     "dev": "nodemon --watch src --watch prisma src/bootstrap.js",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
