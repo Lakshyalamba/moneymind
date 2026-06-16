@@ -187,7 +187,7 @@ router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
-      select: { id: true, name: true, email: true, phone: true, bio: true }
+      select: { id: true, name: true, email: true, phone: true, bio: true, profilePhoto: true, createdAt: true }
     });
 
     if (!user) {
@@ -203,16 +203,17 @@ router.get('/profile', authenticateToken, async (req, res) => {
 // Update profile
 router.put('/profile', authenticateToken, async (req, res) => {
   try {
-    const { name, phone, bio } = req.body;
+    const { name, phone, bio, profilePhoto } = req.body;
 
     const user = await prisma.user.update({
       where: { id: req.user.userId },
       data: {
         ...(name && { name }),
         ...(phone !== undefined && { phone }),
-        ...(bio !== undefined && { bio })
+        ...(bio !== undefined && { bio }),
+        ...(profilePhoto !== undefined && { profilePhoto })
       },
-      select: { id: true, name: true, email: true, phone: true, bio: true }
+      select: { id: true, name: true, email: true, phone: true, bio: true, profilePhoto: true, createdAt: true }
     });
 
     res.json({ user, message: 'Profile updated successfully' });
