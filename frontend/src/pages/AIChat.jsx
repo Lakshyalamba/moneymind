@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
+import { BiBot, BiChip } from 'react-icons/bi';
 import FinanceChatPanel from '../components/chat/FinanceChatPanel';
 import { useFinanceChat } from '../hooks/useFinanceChat';
 import { apiRequest, API_BASE_URL } from '../utils/auth';
@@ -35,44 +35,55 @@ function AIChat() {
 
   if (pageLoading) {
     return (
-      <div className="dashboard-layout">
-        <Sidebar />
-        <main className="dashboard-content">
-          <div className="page-header">
-            <h1>Chat</h1>
+      <div className="chat-page-wrapper">
+        <div className="chat-page-header">
+          <div className="chat-page-header-icon">
+            <BiBot />
+          </div>
+          <div className="chat-page-header-text">
+            <h1>AI Chat</h1>
             <p>Chat with your personal finance assistant</p>
           </div>
-          <div className="chat-page-shell">
-            <div className="chat-page-loading">Loading chat...</div>
+        </div>
+        <div className="chat-page-shell">
+          <div className="chat-page-loading">
+            <div className="chat-page-loading-spinner" />
+            <p>Loading chat...</p>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-layout">
-      <Sidebar />
-      <main className="dashboard-content">
-        <div className="page-header">
-          <h1>Chat</h1>
+    <div className="chat-page-wrapper">
+      <div className="chat-page-header">
+        <div className="chat-page-header-icon">
+          <BiBot />
+        </div>
+        <div className="chat-page-header-text">
+          <h1>AI Chat</h1>
           <p>Chat with your personal finance assistant</p>
         </div>
+        <span className="chat-page-header-badge">
+          <BiChip style={{ marginRight: '0.3rem', verticalAlign: 'middle' }} />
+          Gemini AI
+        </span>
+      </div>
 
-        <div className="chat-page-shell">
-          <FinanceChatPanel
-            errorMessage={errorMessage}
-            isLoading={isLoading}
-            messages={messages}
-            onSendMessage={sendMessage}
-            showSuggestions={showSuggestions}
-            subtitle="Ask about spending, saving, budgets, and financial habits."
-            suggestions={suggestions}
-            title="AI Financial Assistant"
-            variant="page"
-          />
-        </div>
-      </main>
+      <div className="chat-page-shell">
+        <FinanceChatPanel
+          errorMessage={errorMessage}
+          isLoading={isLoading}
+          messages={messages}
+          onSendMessage={sendMessage}
+          showSuggestions={showSuggestions}
+          subtitle="Ask about spending, saving, budgets, and financial habits."
+          suggestions={suggestions}
+          title="AI Financial Assistant"
+          variant="page"
+        />
+      </div>
     </div>
   );
 }
