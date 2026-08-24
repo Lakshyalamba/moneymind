@@ -9,7 +9,7 @@ import '../styles/chat.css';
 function AIChat() {
   const navigate = useNavigate();
   const [pageLoading, setPageLoading] = useState(true);
-  const { errorMessage, isLoading, messages, sendMessage, showSuggestions, suggestions } = useFinanceChat({
+  const { errorMessage, isLoading, messages, sendMessage, clearConversation, showSuggestions, suggestions } = useFinanceChat({
     onUnauthorized: () => navigate('/login')
   });
 
@@ -77,6 +77,7 @@ function AIChat() {
           isLoading={isLoading}
           messages={messages}
           onSendMessage={sendMessage}
+          onClear={clearConversation}
           showSuggestions={showSuggestions}
           subtitle="Ask about spending, saving, budgets, and financial habits."
           suggestions={suggestions}

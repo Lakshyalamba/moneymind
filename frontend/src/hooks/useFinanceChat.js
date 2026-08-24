@@ -2,10 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { apiRequest, API_BASE_URL } from '../utils/auth';
 
 const SUGGESTIONS = [
-  'How can I reduce expenses?',
-  'How should I plan my budget?',
-  'Is my spending healthy?',
-  'Give me savings tips'
+  'Analyze my spending',
+  'How am I doing this month?',
+  'Where can I reduce expenses?',
+  'Analyze my budgets',
+  'Help me reach my goal'
 ];
 
 const WELCOME_MESSAGE =
@@ -129,6 +130,11 @@ export function useFinanceChat({ onUnauthorized } = {}) {
     }
   }, [isLoading, messages.length, onUnauthorized]);
 
+  const clearConversation = useCallback(() => {
+    setMessages([createMessage('assistant', WELCOME_MESSAGE)]);
+    setErrorMessage('');
+  }, []);
+
   const hasConversation = messages.some((message) => message.role === 'user');
   const showSuggestions = !hasConversation && !isLoading;
 
@@ -137,6 +143,7 @@ export function useFinanceChat({ onUnauthorized } = {}) {
     isLoading,
     messages,
     sendMessage,
+    clearConversation,
     showSuggestions,
     suggestions: SUGGESTIONS
   };

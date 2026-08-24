@@ -15,6 +15,7 @@ function FinanceChatPanel({
   messages,
   onClose,
   onSendMessage,
+  onClear,
   showSuggestions,
   subtitle,
   suggestions,
@@ -71,16 +72,37 @@ function FinanceChatPanel({
           </div>
         </div>
 
-        {onClose && (
-          <button
-            className="finance-chat__close"
-            onClick={onClose}
-            aria-label="Close chat"
-            type="button"
-          >
-            <FiX />
-          </button>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {onClear && (
+            <button
+              onClick={onClear}
+              type="button"
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(15, 118, 110, 0.2)',
+                color: '#0f766e',
+                fontSize: '0.75rem',
+                padding: '0.3rem 0.6rem',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 600
+              }}
+            >
+              Clear Chat
+            </button>
+          )}
+
+          {onClose && (
+            <button
+              className="finance-chat__close"
+              onClick={onClose}
+              aria-label="Close chat"
+              type="button"
+            >
+              <FiX />
+            </button>
+          )}
+        </div>
       </header>
 
       <div className="finance-chat__body">
