@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash, FaSearch, FaArrowUp, FaArrowDown, FaWallet, FaTimes, FaFilter, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaArrowUp, FaArrowDown, FaWallet, FaTimes, FaFilter, FaChevronLeft, FaChevronRight, FaExclamationTriangle } from 'react-icons/fa';
 import { apiRequest, API_BASE_URL } from '../utils/auth';
 import '../styles/transactions.css';
 
@@ -224,8 +224,13 @@ function Transactions() {
                   <div className="tx-cell tx-cell-type">
                     <span className={`tx-type-badge ${t.type}`}>{t.type}</span>
                   </div>
-                  <div className="tx-cell tx-cell-cat">
+                  <div className="tx-cell tx-cell-cat" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', alignItems: 'flex-start' }}>
                     <span className="tx-cat-badge">{t.category}</span>
+                    {t.isAnomaly && (
+                      <span className="anomaly-warning-badge" title={t.anomalyReason} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.68rem', background: '#fffbeb', border: '1px solid #fde68a', color: '#b45309', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 600 }}>
+                        <FaExclamationTriangle style={{ fontSize: '0.62rem' }} /> Unusual
+                      </span>
+                    )}
                   </div>
                   <div className={`tx-cell tx-cell-amount ${t.type}`}>
                     <span className="tx-amount-sign">{t.type === 'income' ? '+' : '-'}</span>
