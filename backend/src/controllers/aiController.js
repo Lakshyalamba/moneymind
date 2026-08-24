@@ -17,68 +17,120 @@ export async function chatWithAI(req, res) {
             return res.status(400).json({ error: 'Message is required' });
         }
 
-        // Fetch all user transactions to calculate financial summary
-        const transactions = await prisma.transaction.findMany({
-            where: { userId },
-            orderBy: { date: 'desc' }
-        });
+        const today = new Date();
+        const curMonthStr = today.toISOString().slice(0, 7); // YYYY-MM
+        const prevMonthDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        const prevMonthStr = prevMonthDate.toISOString().slice(0, 7);
 
-        // Calculate financial summary
-        const totalIncome = transactions
+        // Fetch user data in parallel
+        const [
+            transactions,
+            budgets,
+            goals,
+            recurring
+        ] = await Promise.all([
+            prisma.transaction.findMany({ where: { userId } }),
+            prisma.budget.findMany({ where: { userId } }),
+            prisma.goal.findMany({ where: { userId } }),
+            prisma.recurringTransaction.findMany({ where: { userId } })
+        ]);
+
+        // Aggregate current and previous month transactions
+        const curMonthTx = transactions.filter(t => t.date.startsWith(curMonthStr));
+        const prevMonthTx = transactions.filter(t => t.date.startsWith(prevMonthStr));
+
+        // Income, expenses, and savings
+        const curIncome = curMonthTx
             .filter(t => t.type === 'income')
             .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+        const curExpense = curMonthTx
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+        const curSavings = curIncome - curExpense;
+        const savingsRate = curIncome > 0 ? (curSavings / curIncome) * 100 : 0;
 
-        const totalExpenses = transactions
+        const prevIncome = prevMonthTx
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+        const prevExpense = prevMonthTx
             .filter(t => t.type === 'expense')
             .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
-        const balance = totalIncome - totalExpenses;
+        // Budgets utilization breakdown
+        const budgetSummary = budgets.map(b => {
+            const spent = curMonthTx
+                .filter(t => t.type === 'expense' && t.category.toLowerCase() === b.category.toLowerCase())
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            return {
+                category: b.category,
+                limit: parseFloat(b.limit),
+                spent,
+                exceeded: spent > parseFloat(b.limit)
+            };
+        });
 
-        // Find top spending category
-        const categorySpending = {};
-        transactions
-            .filter(t => t.type === 'expense')
-            .forEach(t => {
-                const category = t.category;
-                categorySpending[category] = (categorySpending[category] || 0) + parseFloat(t.amount);
-            });
+        // Goals progress breakdown
+        const goalSummary = goals.map(g => ({
+            title: g.title,
+            targetAmount: parseFloat(g.targetAmount),
+            currentAmount: parseFloat(g.currentAmount),
+            progressPercent: parseFloat(g.targetAmount) > 0 ? (parseFloat(g.currentAmount) / parseFloat(g.targetAmount)) * 100 : 0,
+            deadline: g.deadline
+        }));
 
-        const topCategory = Object.keys(categorySpending).length > 0
-            ? Object.entries(categorySpending).sort((a, b) => b[1] - a[1])[0][0]
-            : 'No expenses recorded';
+        // Recurring items and subscriptions
+        const activeRecurring = recurring.filter(r => r.isActive && !r.isSubscription);
+        const activeSubs = recurring.filter(r => r.isActive && r.isSubscription);
 
-        // Get recent transactions summary (last 5)
-        const recentTransactions = transactions.slice(0, 5).map(t =>
-            `${t.type === 'income' ? '+' : '-'}₹${parseFloat(t.amount).toLocaleString('en-IN')} in ${t.category}`
-        ).join(', ');
+        const recurringSummary = activeRecurring.map(r => ({
+            name: r.name,
+            amount: parseFloat(r.amount),
+            frequency: r.frequency,
+            nextOccurrence: r.nextOccurrence
+        }));
 
-        // Build financial context object
+        const subscriptionSummary = activeSubs.map(s => ({
+            name: s.name,
+            provider: s.provider,
+            amount: parseFloat(s.amount),
+            frequency: s.frequency,
+            nextOccurrence: s.nextOccurrence
+        }));
+
+        // Compile clean, non-sensitive financial context
         const financialContext = {
-            totalIncome,
-            totalExpenses,
-            balance,
-            topCategory,
-            recentTransactions: recentTransactions || 'No recent transactions'
+            currentMonth: {
+                income: curIncome,
+                expenses: curExpense,
+                savings: curSavings,
+                savingsRate: parseFloat(savingsRate.toFixed(1))
+            },
+            previousMonth: {
+                income: prevIncome,
+                expenses: prevExpense
+            },
+            budgets: budgetSummary,
+            goals: goalSummary,
+            recurringTransactions: recurringSummary,
+            subscriptions: subscriptionSummary
         };
 
-        // Get AI advice
+        // Fetch advice from Gemini service
         const aiResponse = await getFinancialAdvice(message, financialContext);
 
-        // Return response
+        // Return structured response
         res.json({
             success: true,
             message: aiResponse,
             context: {
-                income: totalIncome,
-                expenses: totalExpenses,
-                balance: balance
+                income: curIncome,
+                expenses: curExpense,
+                savings: curSavings
             }
         });
 
     } catch (error) {
         console.error('AI Chat error:', error);
-
-        // Return user-friendly error message
         res.status(500).json({
             success: false,
             error: error.message || 'Failed to generate AI response. Please try again.'

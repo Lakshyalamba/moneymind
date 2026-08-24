@@ -3,40 +3,51 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 function formatCurrency(value) {
-    return `₹${Number(value || 0).toLocaleString('en-IN')}`;
+    return `₹${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 }
 
+/**
+ * Clean deterministic rule-based advice fallback using aggregated context details
+ */
 function buildLocalFinancialAdvice(userMessage, financialContext) {
     const normalizedMessage = userMessage.toLowerCase();
-    const savings = financialContext.balance;
-    const expenseRatio = financialContext.totalIncome > 0
-        ? financialContext.totalExpenses / financialContext.totalIncome
-        : 0;
+    const cur = financialContext.currentMonth;
+    const balance = cur.savings;
+    const sortedBudgets = [...financialContext.budgets].sort((a, b) => b.spent - a.spent);
+    const topCategory = sortedBudgets.length > 0 ? sortedBudgets[0].category : 'None';
 
     const advice = [];
 
-    if (financialContext.totalExpenses === 0 && financialContext.totalIncome === 0) {
-        advice.push('I do not see any financial activity yet, so start by adding your income and usual monthly expenses to get meaningful advice.');
-    } else if (savings < 0) {
-        advice.push(`You are overspending by ${formatCurrency(Math.abs(savings))}, so cut back first in ${financialContext.topCategory} and pause non-essential purchases this month.`);
-    } else if (expenseRatio > 0.8) {
-        advice.push(`Your expenses are using most of your income, so cap spending in ${financialContext.topCategory} and move a fixed amount to savings as soon as income arrives.`);
+    if (cur.income === 0 && cur.expenses === 0) {
+        advice.push('I do not see any financial activity yet. Start by adding your income and usual monthly expenses.');
+    } else if (balance < 0) {
+        advice.push(`Your monthly expenses exceed earnings by ${formatCurrency(Math.abs(balance))}. Consider capping spending in ${topCategory}.`);
     } else {
-        advice.push(`You currently have a positive balance of ${formatCurrency(savings)}, so protect it by auto-saving part of it before increasing discretionary spending.`);
+        advice.push(`You have a positive savings of ${formatCurrency(balance)} (savings rate: ${cur.savingsRate}%). Protect this by auto-saving part of it.`);
     }
 
-    if (normalizedMessage.includes('budget')) {
-        advice.push('A simple target is 50% needs, 30% wants, and 20% savings, then tighten the wants bucket if your top category keeps growing.');
-    } else if (normalizedMessage.includes('save') || normalizedMessage.includes('savings')) {
-        advice.push('Set an automatic transfer on payday and aim to build at least 3 months of essential expenses as your emergency fund.');
-    } else if (normalizedMessage.includes('expense') || normalizedMessage.includes('spending')) {
-        advice.push(`Review your recent transactions and set a weekly cap for ${financialContext.topCategory}, because that is your biggest expense driver right now.`);
-    } else if (normalizedMessage.includes('healthy')) {
-        advice.push(expenseRatio <= 0.7
-            ? 'Your spending looks reasonably controlled relative to income, but keep monitoring recurring categories so they do not drift upward.'
-            : 'Your spending is on the higher side relative to income, so you should reduce variable expenses before taking on any new commitments.');
-    } else {
-        advice.push(`Focus on your biggest spending area, ${financialContext.topCategory}, and review recent activity like ${financialContext.recentTransactions} to find one cut you can make this week.`);
+    if (normalizedMessage.includes('budget') || normalizedMessage.includes('limit')) {
+        const exceeded = financialContext.budgets.filter(b => b.exceeded);
+        if (exceeded.length > 0) {
+            advice.push(`Warning: You have exceeded budgets for ${exceeded.map(e => e.category).join(', ')}.`);
+        } else {
+            advice.push('Great job keeping all your active category budgets within limits this month.');
+        }
+    } else if (normalizedMessage.includes('save') || normalizedMessage.includes('goal')) {
+        if (financialContext.goals.length > 0) {
+            const lowGoal = financialContext.goals.sort((a, b) => a.progressPercent - b.progressPercent)[0];
+            advice.push(`Focus on savings goal "${lowGoal.title}" which is currently at ${lowGoal.progressPercent.toFixed(0)}% completion.`);
+        } else {
+            advice.push('Consider setting up savings goals to automatically track targets and deadlines.');
+        }
+    } else if (normalizedMessage.includes('subscription') || normalizedMessage.includes('recurring')) {
+        if (financialContext.subscriptions.length > 0) {
+            const count = financialContext.subscriptions.length;
+            const subCost = financialContext.subscriptions.reduce((sum, s) => sum + s.amount, 0);
+            advice.push(`You have ${count} active subscriptions costing ${formatCurrency(subCost)} monthly. Review these to prune unused ones.`);
+        } else {
+            advice.push('No active subscriptions configured. Add them to monitor merchant renewals.');
+        }
     }
 
     return advice.slice(0, 2).join(' ');
@@ -44,19 +55,12 @@ function buildLocalFinancialAdvice(userMessage, financialContext) {
 
 function getGeminiClient() {
     const apiKey = process.env.GEMINI_API_KEY?.trim();
-
-    if (!apiKey) {
-        return null;
-    }
-
+    if (!apiKey) return null;
     return new GoogleGenerativeAI(apiKey);
 }
 
 /**
- * Get financial advice from Gemini AI based on user's financial data
- * @param {string} userMessage - The user's question or message
- * @param {Object} financialContext - User's financial summary
- * @returns {Promise<string>} - AI-generated advice
+ * Get financial advice from Gemini AI using structured system guidelines
  */
 export async function getFinancialAdvice(userMessage, financialContext) {
     const genAI = getGeminiClient();
@@ -68,30 +72,39 @@ export async function getFinancialAdvice(userMessage, financialContext) {
     let lastError = null;
 
     try {
-        const prompt = `You are a helpful and knowledgeable personal finance advisor. 
+        const prompt = `You are a helpful, professional, and knowledgeable AI personal finance advisor for the MoneyMind platform.
+You have secure access to the user's real, aggregated financial summary.
 
-Based on the following financial data for the user, provide practical, actionable, and empathetic financial advice:
-
-User's Financial Summary:
-- Total Income: ₹${financialContext.totalIncome.toLocaleString('en-IN')}
-- Total Expenses: ₹${financialContext.totalExpenses.toLocaleString('en-IN')}
-- Current Balance: ₹${financialContext.balance.toLocaleString('en-IN')}
-- Top Spending Category: ${financialContext.topCategory || 'Not available'}
-${financialContext.recentTransactions ? `- Recent Activity: ${financialContext.recentTransactions}` : ''}
+User's Real Financial Summary:
+${JSON.stringify(financialContext, null, 2)}
 
 User's Question: ${userMessage}
 
-IMPORTANT: Keep your response SHORT and CRISP - maximum 2-3 sentences. Be direct and actionable. No lengthy explanations.`;
+INSTRUCTIONS & CONSTRAINTS:
+1. Base your answer STRICTLY on the user's provided financial summary.
+2. Clearly distinguish between facts (e.g. actual numbers, savings rates, budgets exceeded) and general suggestions.
+3. Do NOT fabricate, invent, or hallucinate financial numbers. If the data is missing or incomplete, explicitly say that you do not have access to that information.
+4. Provide safe, practical educational personal finance suggestions (e.g. cutting discretionary spending, building emergency buffers).
+5. Never promise specific investment returns, make speculative market predictions, or give guaranteed financial outcomes.
+6. Keep your response SHORT, ACTIONABLE, and CONCISE - maximum 3 sentences. No lengthy greetings or unnecessary text.`;
 
         for (const modelName of GEMINI_MODELS) {
             try {
                 const model = genAI.getGenerativeModel({ model: modelName });
-                const result = await model.generateContent(prompt);
+                
+                // Set a 6-second timeout for the fetch/API call using abort signal if supported, 
+                // or race Promise.
+                const generatePromise = model.generateContent(prompt);
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Gemini API call timed out')), 6000)
+                );
+
+                const result = await Promise.race([generatePromise, timeoutPromise]);
                 const response = await result.response;
                 const text = response.text();
 
                 if (text?.trim()) {
-                    return text;
+                    return text.trim();
                 }
             } catch (error) {
                 lastError = error;
@@ -103,7 +116,7 @@ IMPORTANT: Keep your response SHORT and CRISP - maximum 2-3 sentences. Be direct
     }
 
     if (lastError) {
-        console.error('Gemini fallback to local advice after model failures.');
+        console.error('Gemini fallback to local advice due to api failure:', lastError.message);
     }
 
     return buildLocalFinancialAdvice(userMessage, financialContext);
