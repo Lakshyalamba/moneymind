@@ -1297,7 +1297,7 @@ const getThreePeriods = (period, customStart, customEnd) => {
     ppEnd.setDate(ppEnd.getDate() - 1);
     
     prevStart = formatDateStr(ppStart);
-    prevEnd = formatDateStr(prevEnd ? prevEnd : end);
+    prevEnd = formatDateStr(ppEnd);
 
     const pppStart = new Date(today.getFullYear(), today.getMonth() - 9, 1);
     const pppEnd = new Date(ppStart);
