@@ -1,12 +1,19 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333';
 
 export const apiRequest = async (url, options = {}) => {
+  const token = localStorage.getItem('accessToken');
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const config = {
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers,
     ...options,
   };
 
@@ -21,4 +28,5 @@ export const logout = async () => {
   } catch (error) {
     console.error('Logout error:', error);
   }
+  localStorage.removeItem('accessToken');
 };

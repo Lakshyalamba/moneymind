@@ -65,7 +65,7 @@ export const refreshTokens = async (req, res) => {
     const { accessToken, refreshToken: newRefreshToken } = authService.generateTokens(user);
     await authService.updateUserRefreshToken(user.id, newRefreshToken);
     authService.setTokenCookies(res, accessToken, newRefreshToken);
-    res.json({ message: 'Tokens refreshed successfully' });
+    res.json({ message: 'Tokens refreshed successfully', token: accessToken });
   } catch (error) {
     res.status(401).json({ error: 'Invalid refresh token' });
   }
@@ -95,7 +95,8 @@ export const signup = async (req, res) => {
     authService.setTokenCookies(res, accessToken, refreshToken);
     res.status(201).json({
       message: 'User created successfully',
-      user: { id: user.id, name: user.name, email: user.email }
+      user: { id: user.id, name: user.name, email: user.email },
+      token: accessToken
     });
   } catch (error) {
     if (error.message === 'User already exists') {
@@ -114,7 +115,8 @@ export const login = async (req, res) => {
     authService.setTokenCookies(res, accessToken, refreshToken);
     res.json({
       message: 'Login successful',
-      user: { id: user.id, name: user.name, email: user.email }
+      user: { id: user.id, name: user.name, email: user.email },
+      token: accessToken
     });
   } catch (error) {
     if (error.message === 'Invalid email or password') {

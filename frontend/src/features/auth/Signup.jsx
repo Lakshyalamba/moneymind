@@ -55,6 +55,9 @@ function Signup() {
       const data = await response.json();
 
       if (response.ok) {
+        if (data.token) {
+          localStorage.setItem('accessToken', data.token);
+        }
         setMessage('Welcome to MoneyMind!');
         setMessageType('success');
         setTimeout(() => navigate('/dashboard'), 1500);

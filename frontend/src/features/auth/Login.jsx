@@ -47,6 +47,9 @@ function Login() {
       const data = await response.json();
 
       if (response.ok) {
+        if (data.token) {
+          localStorage.setItem('accessToken', data.token);
+        }
         setMessage(`Welcome back, ${data.user.name}!`);
         setMessageType('success');
         setTimeout(() => navigate('/dashboard'), 1500);
