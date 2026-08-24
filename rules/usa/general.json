@@ -1,0 +1,9 @@
+[
+  { "pattern": "walmart", "category": "Shopping" },
+  { "pattern": "target store", "category": "Shopping" },
+  { "pattern": "lyft", "category": "Transportation" },
+  { "pattern": "costco", "category": "Shopping" },
+  { "pattern": "whole foods", "category": "Food & Dining" },
+  { "pattern": "mcdonalds", "category": "Food & Dining" },
+  { "pattern": "starbucks", "category": "Food & Dining" }
+]

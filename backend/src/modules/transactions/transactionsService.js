@@ -1,34 +1,10 @@
 import { PrismaClient } from '@prisma/client';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import categorizationEngine, { GLOBAL_CATEGORIES } from './categorization/CategorizationEngine.js';
+import adapterRegistry from './adapters/AdapterRegistry.js';
 
 const prisma = new PrismaClient();
 
-export const GLOBAL_CATEGORIES = [
-  'Food & Dining', 'Salary', 'Housing', 'Utilities', 
-  'Transportation', 'Entertainment', 'Shopping', 'Healthcare', 'Freelance', 'Other'
-];
-
-export const GLOBAL_MERCHANT_MAP = [
-  { pattern: 'swiggy', category: 'Food & Dining' },
-  { pattern: 'zomato', category: 'Food & Dining' },
-  { pattern: 'starbucks', category: 'Food & Dining' },
-  { pattern: 'mcdonald', category: 'Food & Dining' },
-  { pattern: 'uber', category: 'Transportation' },
-  { pattern: 'ola', category: 'Transportation' },
-  { pattern: 'rapido', category: 'Transportation' },
-  { pattern: 'netflix', category: 'Entertainment' },
-  { pattern: 'spotify', category: 'Entertainment' },
-  { pattern: 'prime video', category: 'Entertainment' },
-  { pattern: 'amazon', category: 'Shopping' },
-  { pattern: 'flipkart', category: 'Shopping' },
-  { pattern: 'myntra', category: 'Shopping' },
-  { pattern: 'rent', category: 'Housing' },
-  { pattern: 'salary', category: 'Salary' },
-  { pattern: 'electricity', category: 'Utilities' },
-  { pattern: 'water bill', category: 'Utilities' },
-  { pattern: 'wifi', category: 'Utilities' },
-  { pattern: 'internet', category: 'Utilities' }
-];
+export { GLOBAL_CATEGORIES };
 
 export const getMerchantKeyword = (note) => {
   if (!note) return null;
@@ -37,57 +13,8 @@ export const getMerchantKeyword = (note) => {
 };
 
 export const runLayeredCategorization = async (userId, note) => {
-  if (!note || note.trim().length === 0) return 'Other';
-  
-  const keyword = getMerchantKeyword(note);
-  
-  // Layer 1: Learned Custom User Rules
-  if (keyword) {
-    const userRule = await prisma.categoryRule.findUnique({
-      where: {
-        userId_pattern: {
-          userId,
-          pattern: keyword
-        }
-      }
-    });
-    if (userRule) return userRule.category;
-  }
-  
-  // Layer 2: Global Merchant Keyword Map
-  const cleanNote = note.toLowerCase();
-  for (const item of GLOBAL_MERCHANT_MAP) {
-    if (cleanNote.includes(item.pattern)) {
-      return item.category;
-    }
-  }
-
-  // Layer 3: ML/AI Classifier (Gemini)
-  const apiKey = process.env.GEMINI_API_KEY?.trim();
-  if (apiKey) {
-    try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-      const prompt = `Classify this transaction description: "${note}" into exactly one of these categories:
-${GLOBAL_CATEGORIES.map(c => `- ${c}`).join('\n')}
-
-Return ONLY the category name as plain text. Do not include quotes, markdown bolding, periods, or other explanation.`;
-      
-      const result = await Promise.race([
-        model.generateContent(prompt),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('AI Classification Timeout')), 3000))
-      ]);
-      const text = result.response.text().trim();
-      if (GLOBAL_CATEGORIES.includes(text)) {
-        return text;
-      }
-    } catch (err) {
-      console.error('AI categorization error fallback:', err.message);
-    }
-  }
-
-  // Layer 4: Fallback
-  return 'Other';
+  const result = await categorizationEngine.categorize(userId, note);
+  return result.category;
 };
 
 export const learnPersonalizedRule = async (userId, note, category) => {
@@ -291,4 +218,102 @@ export const deleteTransaction = async (transactionId, userId) => {
   return prisma.transaction.delete({
     where: { id: parseInt(transactionId), userId }
   });
+};
+
+export const exportTransactionsData = async (userId, format) => {
+  const exporter = adapterRegistry.getExporter(format);
+  if (!exporter) {
+    throw new Error(`Unsupported export format: "${format}"`);
+  }
+
+  const transactions = await prisma.transaction.findMany({
+    where: { userId },
+    orderBy: { date: 'desc' }
+  });
+
+  return exporter.export(transactions);
+};
+
+export const previewImportData = async (userId, format, fileContent) => {
+  if (!fileContent || fileContent.length === 0) {
+    throw new Error('Upload content is empty');
+  }
+
+  // Enforce a maximum file size of 5MB to prevent memory exhaustion
+  if (fileContent.length > 5 * 1024 * 1024) {
+    throw new Error('Uploaded file exceeds size limit of 5MB');
+  }
+
+  const importer = adapterRegistry.getImporter(format);
+  if (!importer) {
+    throw new Error(`Unsupported import format: "${format}"`);
+  }
+
+  const parsed = importer.parse(fileContent);
+
+  // Fetch current user transactions to perform duplicate checking
+  const currentTransactions = await prisma.transaction.findMany({
+    where: { userId }
+  });
+
+  const validTransactions = [];
+  const errors = [];
+  let potentialDuplicatesCount = 0;
+
+  parsed.forEach((tx, idx) => {
+    try {
+      // Duplicate detection logic (exact match of date, amount, type, and category)
+      const isDuplicate = currentTransactions.some(ctx => 
+        parseFloat(ctx.amount) === parseFloat(tx.amount) &&
+        ctx.type === tx.type &&
+        ctx.date === tx.date &&
+        ctx.category.toLowerCase() === tx.category.toLowerCase()
+      );
+
+      validTransactions.push({
+        ...tx,
+        isDuplicate
+      });
+
+      if (isDuplicate) {
+        potentialDuplicatesCount++;
+      }
+    } catch (err) {
+      errors.push(`Row #${idx + 1}: ${err.message}`);
+    }
+  });
+
+  const detectedColumns = ['amount', 'type', 'category', 'date', 'note'];
+
+  return {
+    totalRows: parsed.length,
+    validRows: validTransactions.length,
+    invalidRows: errors.length,
+    detectedColumns,
+    potentialDuplicatesCount,
+    validTransactions,
+    errors
+  };
+};
+
+export const confirmImportTransactions = async (userId, transactions) => {
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    throw new Error('No transactions provided for confirmation');
+  }
+
+  const createdList = [];
+
+  // Iterate and create transactions sequentially so that we run anomaly checks and personalized learning rules
+  for (const txData of transactions) {
+    const created = await createTransaction(userId, {
+      amount: parseFloat(txData.amount),
+      type: txData.type,
+      category: txData.category,
+      note: txData.note || '',
+      date: txData.date
+    });
+    createdList.push(created);
+  }
+
+  return createdList;
 };

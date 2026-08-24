@@ -1,0 +1,17 @@
+[
+  { "pattern": "netflix", "category": "Entertainment" },
+  { "pattern": "spotify", "category": "Entertainment" },
+  { "pattern": "prime video", "category": "Entertainment" },
+  { "pattern": "amazon", "category": "Shopping" },
+  { "pattern": "flipkart", "category": "Shopping" },
+  { "pattern": "ebay", "category": "Shopping" },
+  { "pattern": "steam", "category": "Entertainment" },
+  { "pattern": "uber", "category": "Transportation" },
+  { "pattern": "rent", "category": "Housing" },
+  { "pattern": "electricity", "category": "Utilities" },
+  { "pattern": "water bill", "category": "Utilities" },
+  { "pattern": "wifi", "category": "Utilities" },
+  { "pattern": "internet", "category": "Utilities" },
+  { "pattern": "salary", "category": "Salary" },
+  { "pattern": "freelance", "category": "Freelance" }
+]

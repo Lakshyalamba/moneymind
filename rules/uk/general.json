@@ -1,0 +1,8 @@
+[
+  { "pattern": "tesco", "category": "Food & Dining" },
+  { "pattern": "sainsburys", "category": "Food & Dining" },
+  { "pattern": "asda", "category": "Food & Dining" },
+  { "pattern": "marks & spencer", "category": "Shopping" },
+  { "pattern": "deliveroo", "category": "Food & Dining" },
+  { "pattern": "tfl london", "category": "Transportation" }
+]

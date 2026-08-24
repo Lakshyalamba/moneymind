@@ -1,0 +1,10 @@
+[
+  { "pattern": "swiggy", "category": "Food & Dining" },
+  { "pattern": "zomato", "category": "Food & Dining" },
+  { "pattern": "rapido", "category": "Transportation" },
+  { "pattern": "ola", "category": "Transportation" },
+  { "pattern": "myntra", "category": "Shopping" },
+  { "pattern": "dunzo", "category": "Food & Dining" },
+  { "pattern": "zepto", "category": "Food & Dining" },
+  { "pattern": "blinkit", "category": "Food & Dining" }
+]
