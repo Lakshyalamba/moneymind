@@ -2,8 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
-import authRoutes from './routes/authRoutes.js';
-import aiRoutes from './routes/aiRoutes.js';
+import routes from './routes.js';
 import './config/passport.js';
 
 const app = express();
@@ -80,8 +79,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());
 
-app.use('/api', authRoutes);
-app.use('/api', aiRoutes);
+app.use('/api', routes);
 
 // 3. Centralized Production Error Handler (Hides DB details, stack traces)
 app.use((err, req, res, next) => {

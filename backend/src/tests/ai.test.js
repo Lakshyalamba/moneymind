@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { aiRateLimiter } from '../routes/aiRoutes.js';
+import { aiRateLimiter } from '../modules/ai/aiRoutes.js';
 
 // Mock Express request and response to test the rate-limiter middleware
 const createMockReqRes = (ip) => {
