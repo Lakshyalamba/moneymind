@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaBullseye, FaArrowLeft, FaRobot, FaChartLine, FaShieldAlt } from 'react-icons/fa';
 import { API_BASE_URL } from '../utils/auth';
+import GoogleOAuthButton from '../components/GoogleOAuthButton';
 
 import '../styles/auth.css';
 
@@ -122,6 +123,9 @@ function Login() {
                 {message}
               </div>
             )}
+
+            <GoogleOAuthButton />
+            <div className="auth-divider">or continue with email</div>
 
             <div className="demo-credentials">
               <div className="demo-header">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaArrowLeft, FaRobot, FaChartLine, FaShieldAlt } from 'react-icons/fa';
 import { API_BASE_URL } from '../utils/auth';
+import GoogleOAuthButton from '../components/GoogleOAuthButton';
 
 import '../styles/auth.css';
 
@@ -121,6 +122,9 @@ function Signup() {
                 {message}
               </div>
             )}
+
+            <GoogleOAuthButton />
+            <div className="auth-divider">or create account with email</div>
 
             <form className="auth-form" onSubmit={handleSubmit}>
               <div className="form-group">
