@@ -9,31 +9,40 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  name         String
-  email        String        @unique
-  password     String
-  phone        String?
-  bio          String?
-  profilePhoto String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  refreshToken String?
-  goals        Goal[]
-  transactions Transaction[]
+  id                    Int                    @id @default(autoincrement())
+  name                  String
+  email                 String                 @unique
+  password              String?
+  phone                 String?
+  bio                   String?
+  profilePhoto          String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  refreshToken          String?
+  googleId              String?                @unique
+  goals                 Goal[]
+  transactions          Transaction[]
+  budgets               Budget[]
+  recurringTransactions RecurringTransaction[]
+  categoryRules         CategoryRule[]
+  notifications         Notification[]
 }
 
 model Transaction {
-  id        Int      @id @default(autoincrement())
-  amount    Decimal  @db.Decimal(10, 2)
-  type      String
-  category  String
-  note      String?
-  date      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            Int      @id @default(autoincrement())
+  amount        Decimal  @db.Decimal(10, 2)
+  type          String
+  category      String
+  note          String?
+  date          String
+  isAnomaly     Boolean  @default(false)
+  anomalyReason String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
 }
 
 model Goal {
@@ -46,4 +55,71 @@ model Goal {
   updatedAt     DateTime @updatedAt
   userId        Int
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Budget {
+  id        Int      @id @default(autoincrement())
+  category  String
+  limit     Decimal  @db.Decimal(10, 2)
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, category])
+}
+
+model RecurringTransaction {
+  id                Int      @id @default(autoincrement())
+  name              String
+  amount            Decimal  @db.Decimal(10, 2)
+  type              String
+  category          String
+  frequency         String
+  startDate         String
+  endDate           String?
+  nextOccurrence    String
+  lastProcessedDate String?
+  isActive          Boolean  @default(true)
+  notes             String?
+  isSubscription    Boolean  @default(false)
+  provider          String?
+  cancellationDate  String?
+  userId            Int
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([nextOccurrence, isActive])
+}
+
+model CategoryRule {
+  id        Int      @id @default(autoincrement())
+  pattern   String
+  category  String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, pattern])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // budget_warning, budget_exceeded, upcoming_recurring, upcoming_subscription, goal_milestone, unusual_spending
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  refId     String?  // Deduplication identifier (e.g. "budget-1-90")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, refId])
+  @@index([userId, isRead])
 }
