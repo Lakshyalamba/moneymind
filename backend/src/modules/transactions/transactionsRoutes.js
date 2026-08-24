@@ -18,6 +18,9 @@ const transactionUpdateSchema = {
 };
 
 router.get('/transactions', authenticateToken, transactionsController.listTransactions);
+router.get('/transactions/export', authenticateToken, transactionsController.exportTransactions);
+router.post('/transactions/import/preview', authenticateToken, transactionsController.previewImport);
+router.post('/transactions/import/confirm', authenticateToken, transactionsController.confirmImport);
 router.post('/transactions', authenticateToken, validateBody(transactionSchema), transactionsController.createTransaction);
 router.put('/transactions/:id', authenticateToken, validateBody(transactionUpdateSchema), transactionsController.updateTransaction);
 router.delete('/transactions/:id', authenticateToken, transactionsController.deleteTransaction);

@@ -42,3 +42,42 @@ export const deleteTransaction = async (req, res) => {
     return handleRouteError(res, error, 'Transaction delete');
   }
 };
+
+export const exportTransactions = async (req, res) => {
+  try {
+    const format = req.query.format || 'csv';
+    const content = await transactionsService.exportTransactionsData(req.user.userId, format);
+    
+    res.setHeader('Content-Type', format === 'csv' ? 'text/csv' : 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="transactions_${new Date().toISOString().slice(0,10)}.${format}"`);
+    res.send(content);
+  } catch (error) {
+    return handleRouteError(res, error, 'Transactions export');
+  }
+};
+
+export const previewImport = async (req, res) => {
+  try {
+    const { format, content } = req.body;
+    if (!format || !content) {
+      return res.status(400).json({ error: 'Format and file content are required' });
+    }
+    const preview = await transactionsService.previewImportData(req.user.userId, format, content);
+    res.json(preview);
+  } catch (error) {
+    return handleRouteError(res, error, 'Transactions import preview');
+  }
+};
+
+export const confirmImport = async (req, res) => {
+  try {
+    const { transactions } = req.body;
+    const result = await transactionsService.confirmImportTransactions(req.user.userId, transactions);
+    res.status(201).json({
+      message: `Imported ${result.length} transactions successfully`,
+      count: result.length
+    });
+  } catch (error) {
+    return handleRouteError(res, error, 'Transactions import confirm');
+  }
+};

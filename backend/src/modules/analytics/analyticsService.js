@@ -165,7 +165,7 @@ export const calculateFinancialHealth = (current, previous, allTime, budgets, go
       bufferExplanation = `Savings cover only ${bufferMonths.toFixed(1)} months of expenses. Target is 3+ months.`;
     } else {
       bufferScore = 0;
-      bufferExplanation = `Negative or zero net savings. Emergency savings buffer is unavailable.`;
+      bufferExplanation = 'Negative or zero net savings. Emergency savings buffer is unavailable.';
     }
 
     components.push({
@@ -352,7 +352,7 @@ export const fetchAnalyticsData = async (userId, queryParams) => {
   } else if (savingsRate > 0) {
     insights.push(`Your savings rate is ${savingsRate.toFixed(1)}% this period. Consider reducing variable expenses to reach the recommended 20% benchmark.`);
   } else {
-    insights.push(`You spent more than you earned this period. Review your top spending categories to identify areas to cut back.`);
+    insights.push('You spent more than you earned this period. Review your top spending categories to identify areas to cut back.');
   }
 
   if (topCategories.length > 0) {
