@@ -4,7 +4,10 @@ import {
   FaPlusCircle, 
   FaListAlt,
   FaBullseye,
-  FaComments
+  FaComments,
+  FaCalendarAlt,
+  FaCreditCard,
+  FaBell
 } from 'react-icons/fa';
 import { apiRequest, API_BASE_URL } from '../utils/auth';
 import { useState, useEffect } from 'react';
@@ -14,10 +17,27 @@ function Sidebar() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     fetchUserProfile();
+    fetchUnreadNotifications();
+    const interval = setInterval(fetchUnreadNotifications, 30000);
+    return () => clearInterval(interval);
   }, []);
+
+  const fetchUnreadNotifications = async () => {
+    try {
+      const response = await apiRequest(`${API_BASE_URL}/api/notifications`);
+      if (response.ok) {
+        const data = await response.json();
+        const unread = data.filter(n => !n.isRead).length;
+        setUnreadCount(unread);
+      }
+    } catch (err) {
+      console.error('Error fetching unread notifications:', err);
+    }
+  };
 
   const fetchUserProfile = async () => {
     try {
@@ -72,6 +92,25 @@ function Sidebar() {
         <Link to="/chat" className={`sidebar-link ${isActive('/chat') ? 'active' : ''}`}>
           <span className="link-icon"><FaComments /></span>
           <span className="link-text">Chat</span>
+        </Link>
+        <Link to="/recurring" className={`sidebar-link ${isActive('/recurring') ? 'active' : ''}`}>
+          <span className="link-icon"><FaCalendarAlt /></span>
+          <span className="link-text">Recurring Bills</span>
+        </Link>
+        <Link to="/subscriptions" className={`sidebar-link ${isActive('/subscriptions') ? 'active' : ''}`}>
+          <span className="link-icon"><FaCreditCard /></span>
+          <span className="link-text">Subscriptions</span>
+        </Link>
+        <Link to="/notifications" className={`sidebar-link ${isActive('/notifications') ? 'active' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span className="link-icon"><FaBell /></span>
+            <span className="link-text">Alerts</span>
+          </div>
+          {unreadCount > 0 && (
+            <span className="sidebar-unread-badge" style={{ background: '#ef4444', color: 'white', fontSize: '0.7rem', fontWeight: 700, padding: '0.15rem 0.45rem', borderRadius: '10px', marginRight: '0.5rem', display: 'inline-block', lineHeight: 1 }}>
+              {unreadCount}
+            </span>
+          )}
         </Link>
       </nav>
 

@@ -8,6 +8,9 @@ import Transactions from './pages/Transactions';
 import Profile from './pages/Profile';
 import Goals from './pages/Goals';
 import AIChat from './pages/AIChat';
+import RecurringTransactions from './pages/RecurringTransactions';
+import Subscriptions from './pages/Subscriptions';
+import NotificationsPage from './pages/NotificationsPage';
 import AIFloatingWidget from './components/AIFloatingWidget';
 import AppLayout from './components/AppLayout';
 import './App.css';
@@ -30,6 +33,9 @@ function AppContent() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/goals" element={<Goals />} />
           <Route path="/chat" element={<AIChat />} />
+          <Route path="/recurring" element={<RecurringTransactions />} />
+          <Route path="/subscriptions" element={<Subscriptions />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
         </Route>
       </Routes>
       {!hideFloatingChat && <AIFloatingWidget />}
