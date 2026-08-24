@@ -37,6 +37,8 @@ async function main() {
     await prisma.transaction.deleteMany({ where: { userId: user.id } });
     await prisma.budget.deleteMany({ where: { userId: user.id } });
     await prisma.goal.deleteMany({ where: { userId: user.id } });
+    await prisma.recurringTransaction.deleteMany({ where: { userId: user.id } });
+    await prisma.notification.deleteMany({ where: { userId: user.id } });
 
     // Helper to generate dates relative to today
     const today = new Date();
@@ -193,6 +195,102 @@ async function main() {
         await prisma.goal.create({ data: g });
     }
     console.log(`✅ Successfully seeded ${goals.length} goals!`);
+
+    // 5. Seed recurring transactions and subscriptions
+    console.log('Seeding recurring transactions & subscriptions...');
+    const nextMonth = new Date(today);
+    nextMonth.setMonth(today.getMonth() + 1);
+    const formatNextMonthDate = (day) => {
+        const y = nextMonth.getFullYear();
+        const m = String(nextMonth.getMonth() + 1).padStart(2, '0');
+        const d = String(day).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
+
+    const recurring = [
+        {
+            name: 'Netflix Subscription',
+            amount: 649.00,
+            type: 'expense',
+            category: 'Entertainment',
+            frequency: 'monthly',
+            startDate: getPastDateStr(90),
+            nextOccurrence: formatNextMonthDate(1),
+            isActive: true,
+            isSubscription: true,
+            provider: 'Netflix',
+            userId: user.id
+        },
+        {
+            name: 'Spotify Premium',
+            amount: 119.00,
+            type: 'expense',
+            category: 'Entertainment',
+            frequency: 'monthly',
+            startDate: getPastDateStr(60),
+            nextOccurrence: formatNextMonthDate(15),
+            isActive: true,
+            isSubscription: true,
+            provider: 'Spotify',
+            userId: user.id
+        },
+        {
+            name: 'Gym Membership',
+            amount: 1500.00,
+            type: 'expense',
+            category: 'Healthcare',
+            frequency: 'monthly',
+            startDate: getPastDateStr(45),
+            nextOccurrence: formatNextMonthDate(10),
+            isActive: true,
+            isSubscription: true,
+            provider: 'Gold Gym',
+            userId: user.id
+        },
+        {
+            name: 'Monthly Office Rent',
+            amount: 12000.00,
+            type: 'expense',
+            category: 'Housing',
+            frequency: 'monthly',
+            startDate: getPastDateStr(120),
+            nextOccurrence: formatNextMonthDate(2),
+            isActive: true,
+            isSubscription: false,
+            userId: user.id
+        }
+    ];
+
+    for (const r of recurring) {
+        await prisma.recurringTransaction.create({ data: r });
+    }
+    console.log(`✅ Successfully seeded ${recurring.length} recurring transactions!`);
+
+    // 6. Seed notifications
+    console.log('Seeding notifications...');
+    const notifications = [
+        {
+            title: 'Budget Alert: Food & Dining',
+            message: 'You have spent 85% of your monthly Food & Dining budget.',
+            type: 'budget_warning',
+            refId: 'budget-food-85',
+            isRead: false,
+            userId: user.id
+        },
+        {
+            title: 'Goal Accomplished!',
+            message: 'Congratulations! You reached 50% milestone on your Emergency Fund goal.',
+            type: 'goal',
+            refId: 'goal-emergency-50',
+            isRead: true,
+            userId: user.id
+        }
+    ];
+
+    for (const n of notifications) {
+        await prisma.notification.create({ data: n });
+    }
+    console.log(`✅ Successfully seeded ${notifications.length} notifications!`);
 
     console.log('Seed completed successfully!');
 }
