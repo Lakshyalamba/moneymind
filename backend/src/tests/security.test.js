@@ -1,3 +1,4 @@
+import '../loadEnv.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PrismaClient } from '@prisma/client';
@@ -7,9 +8,9 @@ import * as goalsService from '../modules/goals/goalsService.js';
 import * as subscriptionsService from '../modules/subscriptions/subscriptionsService.js';
 import * as webhookService from '../modules/webhooks/webhookService.js';
 
-const prisma = new PrismaClient();
+const prisma = process.env.DATABASE_URL ? new PrismaClient() : null;
 
-test('Security & IDOR - User A cannot access User B resources', async () => {
+test('Security & IDOR - User A cannot access User B resources', { skip: !process.env.DATABASE_URL }, async () => {
   // Clean up old test data by emails
   await prisma.webhookSubscription.deleteMany({ where: { user: { email: { in: ['usera@example.com', 'userb@example.com'] } } } });
   await prisma.transaction.deleteMany({ where: { user: { email: { in: ['usera@example.com', 'userb@example.com'] } } } });

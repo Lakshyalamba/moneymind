@@ -1,3 +1,4 @@
+import '../loadEnv.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PrismaClient } from '@prisma/client';
@@ -9,7 +10,7 @@ import {
   deleteSubscription
 } from '../modules/webhooks/webhookService.js';
 
-const prisma = new PrismaClient();
+const prisma = process.env.DATABASE_URL ? new PrismaClient() : null;
 
 test('Webhook Pipeline - HMAC signing payload verification', () => {
   const secret = 'super-secret-key';
@@ -24,7 +25,7 @@ test('Webhook Pipeline - HMAC signing payload verification', () => {
   assert.notEqual(sig1, sigDifferentSecret, 'Different secrets must generate different signatures');
 });
 
-test('Webhook Pipeline - CRUD Operations', async () => {
+test('Webhook Pipeline - CRUD Operations', { skip: !process.env.DATABASE_URL }, async () => {
   const testUserId = 99999;
 
   // Clean up any old test records first
