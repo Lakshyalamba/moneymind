@@ -35,6 +35,18 @@ import {
 import { apiRequest, API_BASE_URL } from '../../utils/auth';
 import FinanceChatPanel from '../ai/FinanceChatPanel';
 import { useFinanceChat } from '../ai/useFinanceChat';
+
+// Widgets, translation & formatter imports
+import { useTranslation } from '../../utils/LanguageContext';
+import { formatCurrency, formatDate } from '../../utils/formatters';
+import IncomeWidget from './widgets/IncomeWidget';
+import ExpenseWidget from './widgets/ExpenseWidget';
+import NetWorthWidget from './widgets/NetWorthWidget';
+import BudgetWidget from './widgets/BudgetWidget';
+import GoalWidget from './widgets/GoalWidget';
+import SpendingWidget from './widgets/SpendingWidget';
+import RecentTransactionsWidget from './widgets/RecentTransactionsWidget';
+
 import '../../styles/dashboard.css';
 
 function Dashboard() {
@@ -44,6 +56,13 @@ function Dashboard() {
   const [analyticsError, setAnalyticsError] = useState(null);
   const navigate = useNavigate();
 
+  const { t, language, currency } = useTranslation();
+
+  // Recent Transactions state
+  const [recentTx, setRecentTx] = useState([]);
+  const [recentTxLoading, setRecentTxLoading] = useState(true);
+  const [recentTxError, setRecentTxError] = useState(null);
+
   // Filter State
   const [period, setPeriod] = useState('current-month');
   const [customDates, setCustomDates] = useState({ startDate: '', endDate: '' });
@@ -51,7 +70,6 @@ function Dashboard() {
 
   // Financial Health State
   const [healthData, setHealthData] = useState(null);
-  const [healthLoading, setHealthLoading] = useState(true);
   const [showHealthDetails, setShowHealthDetails] = useState(false);
   const [anomalies, setAnomalies] = useState([]);
 
@@ -103,10 +121,28 @@ function Dashboard() {
     setTimeout(() => setToast(null), 3000);
   }, []);
 
+  const fetchRecentTransactions = async () => {
+    setRecentTxLoading(true);
+    setRecentTxError(null);
+    try {
+      const res = await apiRequest(`${API_BASE_URL}/api/transactions?page=1&limit=5`);
+      if (res.ok) {
+        const data = await res.json();
+        setRecentTx(data.transactions || []);
+      } else {
+        setRecentTxError('Failed to load recent transactions');
+      }
+    } catch (err) {
+      console.error('Error loading recent transactions:', err);
+      setRecentTxError('Network error. Failed to load recent transactions.');
+    } finally {
+      setRecentTxLoading(false);
+    }
+  };
+
   const fetchAnalytics = async (selectedPeriod, start, end) => {
     setAnalyticsLoading(true);
     setAnalyticsError(null);
-    setHealthLoading(true);
     try {
       let analyticsUrl = `${API_BASE_URL}/api/analytics?period=${selectedPeriod}`;
       let healthUrl = `${API_BASE_URL}/api/analytics/financial-health?period=${selectedPeriod}`;
@@ -118,7 +154,8 @@ function Dashboard() {
       const [resAnalytics, resHealth, resAnomalies] = await Promise.all([
         apiRequest(analyticsUrl),
         apiRequest(healthUrl),
-        apiRequest(`${API_BASE_URL}/api/analytics/anomalies`)
+        apiRequest(`${API_BASE_URL}/api/analytics/anomalies`),
+        fetchRecentTransactions()
       ]);
 
       if (resAnalytics.ok) {
@@ -143,7 +180,6 @@ function Dashboard() {
       setAnalyticsError('Network error. Failed to connect to server.');
     } finally {
       setAnalyticsLoading(false);
-      setHealthLoading(false);
     }
   };
 
@@ -350,6 +386,18 @@ function Dashboard() {
     fetchUserBudgets();
   }, [navigate]);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowBudgetModal(false);
+      }
+    };
+    if (showBudgetModal) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showBudgetModal]);
+
   if (loading) {
     return (
       <div className="analytics-dashboard-loading">
@@ -375,16 +423,6 @@ function Dashboard() {
     { name: 'One-Time', value: analyticsData.breakdowns.oneTimeExpenses, color: '#ec4899' }
   ] : [];
 
-  const renderComparison = (val) => {
-    if (val === null || val === undefined) return null;
-    const isPos = val >= 0;
-    const formatted = Math.abs(val).toFixed(0);
-    return (
-      <span className={`kpi-comparison-tag ${isPos ? 'kpi-pos' : 'kpi-neg'}`}>
-        {isPos ? <FaArrowUp /> : <FaArrowDown />} {formatted}% from last period
-      </span>
-    );
-  };
 
   return (
     <div className="dashboard-content-container">
@@ -398,8 +436,8 @@ function Dashboard() {
       {/* Header & Date Filters */}
       <div className="content-header">
         <div className="welcome-section">
-          <h1>Welcome back, {user?.name || 'User'}!</h1>
-          <p>Here's your comprehensive financial analytics breakdown</p>
+          <h1>{t('common.welcome', { name: user?.name || 'User' })}</h1>
+          <p>{t('dashboard.subtitle')}</p>
         </div>
         <div className="filter-controls">
           <FaCalendarAlt className="filter-icon" />
@@ -459,9 +497,9 @@ function Dashboard() {
                 <div className="health-hero-left">
                   <div className="health-icon-title-row">
                     <FaHeartbeat className="health-hero-icon" />
-                    <h2>Financial Health Score</h2>
+                    <h2>{t('dashboard.financialHealth')}</h2>
                   </div>
-                  <p className="health-hero-desc">Your transparent overall health grade calculated from savings, budgets, and goals.</p>
+                  <p className="health-hero-desc">{t('dashboard.healthDesc')}</p>
                   
                   <div className="health-score-value-row">
                     <div className="health-large-score">{healthData.score}<span>/100</span></div>
@@ -482,12 +520,12 @@ function Dashboard() {
                     className="health-toggle-details-btn" 
                     onClick={() => setShowHealthDetails(!showHealthDetails)}
                   >
-                    {showHealthDetails ? 'Hide Detailed Score Breakdown' : 'Show Detailed Score Breakdown'}
+                    {showHealthDetails ? t('dashboard.hideBreakdown') : t('dashboard.breakdown')}
                   </button>
                 </div>
 
                 <div className="health-hero-right">
-                  <h3>Actionable Recommendations</h3>
+                  <h3>{t('dashboard.recommendations')}</h3>
                   {healthData.recommendations && healthData.recommendations.length > 0 ? (
                     <ul className="health-recs-list">
                       {healthData.recommendations.map((rec, idx) => (
@@ -530,18 +568,18 @@ function Dashboard() {
             </div>
           )}
 
-           {/* Unusual Spending Alerts */}
+          {/* Unusual Spending Alerts */}
           {anomalies && anomalies.length > 0 && (
             <div className="insights-panel-card" style={{ background: '#fffbeb', borderColor: '#fde68a', marginBottom: '2rem' }}>
               <h3 style={{ borderBottomColor: 'rgba(217, 119, 6, 0.1)', color: '#b45309', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <FaExclamationTriangle style={{ color: '#d97706' }} />
-                Unusual Spending Alerts
+                {t('dashboard.unusualSpending')}
               </h3>
               <ul className="insights-list">
                 {anomalies.map(tx => (
                   <li key={tx.id} className="insight-item" style={{ color: '#92400e', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px dashed rgba(217, 119, 6, 0.2)' }}>
                     <div>
-                      <strong>{tx.category}</strong>: {tx.note || 'Uncategorized expense'} of ₹{parseFloat(tx.amount).toLocaleString('en-IN')} on {tx.date}.
+                      <strong>{tx.category}</strong>: {tx.note || 'Uncategorized expense'} of {formatCurrency(tx.amount, currency, language)} on {tx.date}.
                       <div style={{ fontSize: '0.8rem', color: '#b45309', marginTop: '0.2rem' }}>{tx.anomalyReason}</div>
                     </div>
                   </li>
@@ -552,42 +590,33 @@ function Dashboard() {
 
           {/* KPI Dashboard Cards */}
           <div className="kpi-grid">
-            <div className="kpi-analytics-card">
-              <div className="kpi-top">
-                <span className="kpi-title">Total Income</span>
-                <span className="kpi-icon-wrapper kpi-inc"><FaArrowUp /></span>
-              </div>
-              <div className="kpi-value">₹{analyticsData.summary.totalIncome.toLocaleString('en-IN')}</div>
-              <div className="kpi-bottom">
-                {renderComparison(analyticsData.comparison.incomeChange)}
-              </div>
-            </div>
+            <IncomeWidget
+              data={{ totalIncome: analyticsData.summary.totalIncome, comparisonChange: analyticsData.comparison.incomeChange }}
+              loading={analyticsLoading}
+              error={analyticsError}
+              currency={currency}
+              language={language}
+            />
+
+            <ExpenseWidget
+              data={{ totalExpense: analyticsData.summary.totalExpense, comparisonChange: analyticsData.comparison.expenseChange }}
+              loading={analyticsLoading}
+              error={analyticsError}
+              currency={currency}
+              language={language}
+            />
+
+            <NetWorthWidget
+              data={{ netSavings: analyticsData.summary.netSavings, comparisonChange: analyticsData.comparison.savingsChange }}
+              loading={analyticsLoading}
+              error={analyticsError}
+              currency={currency}
+              language={language}
+            />
 
             <div className="kpi-analytics-card">
               <div className="kpi-top">
-                <span className="kpi-title">Total Expenses</span>
-                <span className="kpi-icon-wrapper kpi-exp"><FaArrowDown /></span>
-              </div>
-              <div className="kpi-value">₹{analyticsData.summary.totalExpense.toLocaleString('en-IN')}</div>
-              <div className="kpi-bottom">
-                {renderComparison(analyticsData.comparison.expenseChange)}
-              </div>
-            </div>
-
-            <div className="kpi-analytics-card">
-              <div className="kpi-top">
-                <span className="kpi-title">Net Savings</span>
-                <span className="kpi-icon-wrapper kpi-save"><FaWallet /></span>
-              </div>
-              <div className="kpi-value">₹{analyticsData.summary.netSavings.toLocaleString('en-IN')}</div>
-              <div className="kpi-bottom">
-                {renderComparison(analyticsData.comparison.savingsChange)}
-              </div>
-            </div>
-
-            <div className="kpi-analytics-card">
-              <div className="kpi-top">
-                <span className="kpi-title">Savings Rate</span>
+                <span className="kpi-title">{t('dashboard.savingsRate')}</span>
                 <span className="kpi-icon-wrapper kpi-rate"><FaPercentage /></span>
               </div>
               <div className="kpi-value">{analyticsData.summary.savingsRate.toFixed(1)}%</div>
@@ -598,13 +627,12 @@ function Dashboard() {
                 />
               </div>
             </div>
-
-            <div className="kpi-analytics-card kpi-card-networth">
+            <div className="kpi-analytics-card">
               <div className="kpi-top">
                 <span className="kpi-title">Current Net Worth</span>
                 <span className="kpi-icon-wrapper kpi-worth"><FaWallet /></span>
               </div>
-              <div className="kpi-value">₹{analyticsData.summary.netWorth.toLocaleString('en-IN')}</div>
+              <div className="kpi-value">{formatCurrency(analyticsData.summary.netWorth, currency, language)}</div>
               <div className="kpi-bottom-text">Cumulative balance all-time</div>
             </div>
           </div>
@@ -780,92 +808,43 @@ function Dashboard() {
               </div>
             </div>
           </div>
-
           {/* Budgets & Goals Section */}
           <div className="budget-goals-section-grid">
-            {/* Budgets Progress */}
-            <div className="dashboard-subpanel-card">
-              <div className="panel-header-btn-row">
-                <h3>Budget Utilization</h3>
-                <button className="panel-header-action-btn" onClick={() => setShowBudgetModal(true)}>
-                  <FaPlus /> Manage Budgets
-                </button>
-              </div>
-              <div className="panel-content-list">
-                {userBudgets.length === 0 ? (
-                  <div className="panel-empty-state">No category budgets defined yet. Click "Manage Budgets" to add.</div>
-                ) : (
-                  userBudgets.map((b) => (
-                    <div key={b.id} className="budget-progress-item" style={{ marginBottom: '1.25rem' }}>
-                      <div className="budget-item-top">
-                        <span className="budget-item-cat">{b.category}</span>
-                        <span className="budget-item-ratio">
-                          ₹{b.spent.toLocaleString('en-IN')} / <strong>₹{b.limit.toLocaleString('en-IN')}</strong>
-                        </span>
-                      </div>
-                      <div className="budget-progress-outer">
-                        <div 
-                          className={`budget-progress-fill ${b.percentageUsed > 100 ? 'budget-over' : b.percentageUsed > 85 ? 'budget-warning' : ''}`}
-                          style={{ width: `${Math.min(100, b.percentageUsed)}%` }}
-                        />
-                      </div>
-                      
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#64748b', marginTop: '0.25rem' }}>
-                        <span>{b.percentageUsed.toFixed(0)}% utilized</span>
-                        {b.hasData ? (
-                          <span style={{ 
-                            color: b.projectedSpending > b.limit ? '#ef4444' : '#10b981', 
-                            fontWeight: '600' 
-                          }}>
-                            Proj: ₹{b.projectedSpending.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                            {b.expectedDeficit > 0 && ` (Over ₹${b.expectedDeficit.toLocaleString('en-IN', { maximumFractionDigits: 0 })})`}
-                          </span>
-                        ) : (
-                          <span>Forecasting: Insufficient Data</span>
-                        )}
-                      </div>
+            <BudgetWidget
+              userBudgets={userBudgets}
+              loading={analyticsLoading}
+              error={analyticsError}
+              onManageBudgets={() => setShowBudgetModal(true)}
+              currency={currency}
+              language={language}
+            />
 
-                      {b.hasData && (
-                        <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '0.1rem', textAlign: 'right' }}>
-                          Confidence: <strong>{b.forecastConfidence}</strong>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            <GoalWidget
+              goalProgress={analyticsData.goalProgress}
+              loading={analyticsLoading}
+              error={analyticsError}
+              currency={currency}
+              language={language}
+            />
+          </div>
 
-            {/* Goal Progress */}
-            <div className="dashboard-subpanel-card">
-              <h3>Savings Goals Progress</h3>
-              <div className="panel-content-list">
-                {analyticsData.goalProgress.length === 0 ? (
-                  <div className="panel-empty-state">No goals set yet. Go to Goals screen to configure them!</div>
-                ) : (
-                  analyticsData.goalProgress.map((g) => (
-                    <div key={g.id} className="goal-progress-item">
-                      <div className="goal-item-top">
-                        <span className="goal-item-title">{g.title}</span>
-                        <span className="goal-item-ratio">
-                          ₹{g.currentAmount.toLocaleString('en-IN')} / <strong>₹{g.targetAmount.toLocaleString('en-IN')}</strong>
-                        </span>
-                      </div>
-                      <div className="goal-progress-outer">
-                        <div 
-                          className="goal-progress-fill"
-                          style={{ width: `${Math.min(100, g.percentage)}%` }}
-                        />
-                      </div>
-                      <div className="goal-item-bottom">
-                        <span>Deadline: {g.deadline}</span>
-                        <span>{g.percentage.toFixed(0)}% saved</span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+          {/* Extensible Widgets: Spending Analysis & Recent Ledger */}
+          <div className="budget-goals-section-grid" style={{ marginTop: '2rem' }}>
+            <SpendingWidget
+              categoryBreakdown={analyticsData.categoryBreakdown}
+              loading={analyticsLoading}
+              error={analyticsError}
+              currency={currency}
+              language={language}
+            />
+
+            <RecentTransactionsWidget
+              transactions={recentTx}
+              loading={recentTxLoading}
+              error={recentTxError}
+              currency={currency}
+              language={language}
+            />
           </div>
         </>
       )}
@@ -1017,16 +996,17 @@ function Dashboard() {
       {/* Manage Budgets Modal */}
       {showBudgetModal && (
         <div className="budget-modal-overlay">
-          <div className="budget-modal-container">
+          <div className="budget-modal-container" role="dialog" aria-modal="true" aria-labelledby="budget-modal-title">
             <div className="modal-header">
-              <h2>Configure Monthly Budgets</h2>
-              <button className="modal-close-btn" onClick={() => setShowBudgetModal(false)}><FaTimes /></button>
+              <h2 id="budget-modal-title">Configure Monthly Budgets</h2>
+              <button className="modal-close-btn" onClick={() => setShowBudgetModal(false)} aria-label="Close modal"><FaTimes /></button>
             </div>
             
             <form onSubmit={handleBudgetSubmit} className="budget-config-form">
               <div className="form-group">
-                <label>Category</label>
+                <label htmlFor="budget-category">Category</label>
                 <select 
+                  id="budget-category"
                   value={budgetForm.category} 
                   onChange={(e) => setBudgetForm(prev => ({ ...prev, category: e.target.value }))}
                   className="tool-input"
@@ -1041,8 +1021,9 @@ function Dashboard() {
                 </select>
               </div>
               <div className="form-group">
-                <label>Monthly Limit (₹)</label>
+                <label htmlFor="budget-limit">Monthly Limit (₹)</label>
                 <input 
+                  id="budget-limit"
                   type="number" 
                   value={budgetForm.limit} 
                   onChange={(e) => setBudgetForm(prev => ({ ...prev, limit: e.target.value }))}
@@ -1065,7 +1046,7 @@ function Dashboard() {
                   {userBudgets.map(b => (
                     <div key={b.id} className="configured-budget-row">
                       <span>{b.category}: <strong>₹{b.limit.toLocaleString('en-IN')}</strong></span>
-                      <button className="delete-budget-btn" onClick={() => deleteBudget(b.id)}>Delete</button>
+                      <button className="delete-budget-btn" onClick={() => deleteBudget(b.id)} aria-label={`Delete budget for ${b.category}`}>Delete</button>
                     </div>
                   ))}
                 </div>
