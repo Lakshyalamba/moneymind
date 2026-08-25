@@ -46,7 +46,16 @@ npm install
 
 ### Running Locally
 1. Configure environment variables in `backend/.env` (see `backend/.env.example`).
-2. Start both dev servers:
+2. Populate initial database schema and mock records:
+```bash
+# Push database schema
+cd backend
+npx prisma db push
+
+# Seed mock demo records
+npm run db:seed
+```
+3. Start both dev servers:
 ```bash
 # Backend dev server (from backend/)
 npm run dev
@@ -54,3 +63,17 @@ npm run dev
 # Frontend dev server (from frontend/)
 npm run dev
 ```
+
+---
+
+## Extension Points & Developer Guides
+
+MoneyMind is built to be modular and highly extensible. Contributors can read the following guides to learn how to add custom extensions:
+
+- **[AI Provider Customization](file:///Users/lakshyachoudhary/My%20Projects/moneymind/docs/AI_PROVIDERS.md)**: Learn how to add new LLM suppliers.
+- **[Transaction Categorization Mappings](file:///Users/lakshyachoudhary/My%20Projects/moneymind/docs/CATEGORIZATION.md)**: Add rules or strategies for transaction description categorizers.
+- **[Format Importers / Exporters](file:///Users/lakshyachoudhary/My%20Projects/moneymind/docs/IMPORT_EXPORT.md)**: Support alternative CSV/JSON file ingestion.
+- **[Notification Plugs](file:///Users/lakshyachoudhary/My%20Projects/moneymind/docs/NOTIFICATIONS.md)**: Integrate email/SMS warning alerts.
+- **[Webhook Pipelines](file:///Users/lakshyachoudhary/My%20Projects/moneymind/docs/WEBHOOKS.md)**: Dispatch real-time financial triggers to third-party endpoints.
+- **[Theme Customization](file:///Users/lakshyachoudhary/My%20Projects/moneymind/docs/THEMES.md)**: Customize Light / Dark styling design tokens.
+

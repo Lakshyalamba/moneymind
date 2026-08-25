@@ -34,6 +34,16 @@ jobs:
           cd backend
           npm run test
 
+      - name: Lint Backend Code
+        run: |
+          cd backend
+          npm run lint
+
+      - name: Validate Merchant Pattern Rules
+        run: |
+          cd backend
+          npm run validate:merchant-rules
+
   frontend-ci:
     runs-on: ubuntu-latest
     steps:
@@ -50,6 +60,11 @@ jobs:
         run: |
           cd frontend
           npm ci
+
+      - name: Lint Frontend Code
+        run: |
+          cd frontend
+          npm run lint
 
       - name: Build Frontend (Production compilation check)
         run: |

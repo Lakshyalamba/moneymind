@@ -38,7 +38,7 @@ export const createGoal = async (userId, goalData) => {
 export const updateGoal = async (goalId, userId, goalData) => {
   const { title, targetAmount, currentAmount, deadline } = goalData;
 
-  const existing = await prisma.goal.findUnique({
+  const existing = await prisma.goal.findFirst({
     where: { id: parseInt(goalId), userId }
   });
 
@@ -47,7 +47,7 @@ export const updateGoal = async (goalId, userId, goalData) => {
   }
 
   const updated = await prisma.goal.update({
-    where: { id: parseInt(goalId), userId },
+    where: { id: existing.id },
     data: {
       ...(title && { title }),
       ...(targetAmount && { targetAmount: targetAmount.toString() }),
@@ -64,7 +64,7 @@ export const updateGoal = async (goalId, userId, goalData) => {
 };
 
 export const deleteGoal = async (goalId, userId) => {
-  const existing = await prisma.goal.findUnique({
+  const existing = await prisma.goal.findFirst({
     where: { id: parseInt(goalId), userId }
   });
 
@@ -73,6 +73,6 @@ export const deleteGoal = async (goalId, userId) => {
   }
 
   return prisma.goal.delete({
-    where: { id: parseInt(goalId), userId }
+    where: { id: existing.id }
   });
 };

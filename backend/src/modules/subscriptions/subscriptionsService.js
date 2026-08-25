@@ -175,8 +175,16 @@ export const updateRecurring = async (itemId, userId, data) => {
   if (cancellationDate !== undefined) updateData.cancellationDate = cancellationDate || null;
   if (isActive !== undefined) updateData.isActive = isActive;
 
+  const existing = await prisma.recurringTransaction.findFirst({
+    where: { id: parseInt(itemId), userId }
+  });
+
+  if (!existing) {
+    return null;
+  }
+
   const item = await prisma.recurringTransaction.update({
-    where: { id: parseInt(itemId), userId },
+    where: { id: existing.id },
     data: updateData
   });
 
@@ -187,13 +195,13 @@ export const updateRecurring = async (itemId, userId, data) => {
 };
 
 export const deleteRecurring = async (itemId, userId) => {
-  const existing = await prisma.recurringTransaction.findUnique({
+  const existing = await prisma.recurringTransaction.findFirst({
     where: { id: parseInt(itemId), userId }
   });
   if (!existing) {
     return null;
   }
   return prisma.recurringTransaction.delete({
-    where: { id: parseInt(itemId), userId }
+    where: { id: existing.id }
   });
 };

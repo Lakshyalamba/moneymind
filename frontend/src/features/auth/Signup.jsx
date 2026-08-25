@@ -131,8 +131,9 @@ function Signup() {
 
             <form className="auth-form" onSubmit={handleSubmit}>
               <div className="form-group">
-                <label className="form-label">Full Name</label>
+                <label htmlFor="name-input" className="form-label">Full Name</label>
                 <input
+                  id="name-input"
                   type="text"
                   name="name"
                   value={formData.name}
@@ -144,8 +145,9 @@ function Signup() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Email Address</label>
+                <label htmlFor="email-input" className="form-label">Email Address</label>
                 <input
+                  id="email-input"
                   type="email"
                   name="email"
                   value={formData.email}
@@ -157,8 +159,9 @@ function Signup() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Password</label>
+                <label htmlFor="password-input" className="form-label">Password</label>
                 <input
+                  id="password-input"
                   type="password"
                   name="password"
                   value={formData.password}

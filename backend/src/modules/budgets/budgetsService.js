@@ -92,13 +92,13 @@ export const createOrUpdateBudget = async (userId, budgetData) => {
 };
 
 export const deleteBudget = async (budgetId, userId) => {
-  const existing = await prisma.budget.findUnique({
+  const existing = await prisma.budget.findFirst({
     where: { id: parseInt(budgetId), userId }
   });
   if (!existing) {
     return null;
   }
   return prisma.budget.delete({
-    where: { id: parseInt(budgetId), userId }
+    where: { id: existing.id }
   });
 };

@@ -123,12 +123,13 @@ function AddTransaction() {
 
             <div className="at-form-row">
               <div className="at-field">
-                <label className="at-label">
+                <label htmlFor="tx-amount" className="at-label">
                   <FaTag className="at-field-icon" /> Amount
                 </label>
                 <div className="at-amount-wrap">
                   <span className="at-currency">₹</span>
                   <input
+                    id="tx-amount"
                     type="number"
                     name="amount"
                     value={formData.amount}
@@ -145,10 +146,11 @@ function AddTransaction() {
               </div>
 
               <div className="at-field">
-                <label className="at-label">
+                <label htmlFor="tx-date" className="at-label">
                   <FaCalendar className="at-field-icon" /> Date
                 </label>
                 <input
+                  id="tx-date"
                   type="date"
                   name="date"
                   value={formData.date}
@@ -165,7 +167,7 @@ function AddTransaction() {
             </div>
 
             <div className="at-field">
-              <label className="at-label">
+              <label htmlFor="tx-category" className="at-label">
                 <FaTag className="at-field-icon" /> Category
               </label>
               <div className="at-category-chips">
@@ -183,6 +185,7 @@ function AddTransaction() {
               <div className="at-custom-cat">
                 <FaPencilAlt className="at-field-icon-sm" />
                 <input
+                  id="tx-category"
                   type="text"
                   name="category"
                   value={formData.category}
@@ -195,10 +198,11 @@ function AddTransaction() {
             </div>
 
             <div className="at-field">
-              <label className="at-label">
+              <label htmlFor="tx-note" className="at-label">
                 <FaPencilAlt className="at-field-icon" /> Note <span className="at-optional">(optional)</span>
               </label>
               <textarea
+                id="tx-note"
                 name="note"
                 value={formData.note}
                 onChange={handleChange}

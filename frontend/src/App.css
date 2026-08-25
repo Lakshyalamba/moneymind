@@ -1,3 +1,37 @@
+:root {
+  --bg-color: #f7fbfb;
+  --card-bg: #ffffff;
+  --text-primary: #14213d;
+  --text-secondary: #55616f;
+  --border-color: rgba(15, 118, 110, 0.08);
+  --sidebar-bg: rgba(255, 255, 255, 0.65);
+  --input-bg: #fafafa;
+  --input-border: #e8e8e8;
+  --input-text: #14213d;
+  --kpi-card-bg: #ffffff;
+  --chart-card-bg: #ffffff;
+  --primary-color: #0f766e;
+  --primary-hover: #0d5c56;
+  --teal-soft: rgba(15, 118, 110, 0.05);
+}
+
+[data-theme='dark'] {
+  --bg-color: #0b0f19;
+  --card-bg: #151f32;
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --sidebar-bg: rgba(21, 31, 50, 0.85);
+  --input-bg: #1f293d;
+  --input-border: #2d3748;
+  --input-text: #f3f4f6;
+  --kpi-card-bg: #151f32;
+  --chart-card-bg: #151f32;
+  --primary-color: #14b8a6;
+  --primary-hover: #0d9488;
+  --teal-soft: rgba(20, 184, 166, 0.1);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -6,7 +40,9 @@
 
 body {
   font-family: 'Inter', 'Arial', sans-serif;
-  background-color: #f7fbfb;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -118,3 +154,104 @@ body {
   color: #721c24;
   border: 1px solid #f5c6cb;
 }
+
+/* ==================================================
+   DARK MODE CUSTOM OVERRIDES
+   ================================================== */
+[data-theme='dark'] .dashboard-layout {
+  background: var(--bg-color) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .sidebar,
+[data-theme='dark'] .profile-form-card,
+[data-theme='dark'] .kpi-analytics-card,
+[data-theme='dark'] .chart-card-wrapper,
+[data-theme='dark'] .dashboard-subpanel-card,
+[data-theme='dark'] .insights-panel-card,
+[data-theme='dark'] .goal-card,
+[data-theme='dark'] .tool-card,
+[data-theme='dark'] .modal-content,
+[data-theme='dark'] .transaction-card,
+[data-theme='dark'] .profile-trigger,
+[data-theme='dark'] .profile-dropdown,
+[data-theme='dark'] .finance-chat-panel,
+[data-theme='dark'] .chat-message-bubble {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-theme='dark'] h1,
+[data-theme='dark'] h2,
+[data-theme='dark'] h3,
+[data-theme='dark'] h4,
+[data-theme='dark'] h5,
+[data-theme='dark'] h6,
+[data-theme='dark'] .profile-name,
+[data-theme='dark'] .kpi-value,
+[data-theme='dark'] .budget-item-ratio,
+[data-theme='dark'] .goal-item-ratio,
+[data-theme='dark'] .budget-item-cat,
+[data-theme='dark'] .goal-item-title,
+[data-theme='dark'] .section-title,
+[data-theme='dark'] .tool-card h3,
+[data-theme='dark'] .chat-suggestion-chip {
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .sidebar-link,
+[data-theme='dark'] .profile-detail-value,
+[data-theme='dark'] .tool-label,
+[data-theme='dark'] .section-subtitle,
+[data-theme='dark'] .sidebar-logo {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme='dark'] .sidebar-link.active {
+  background: var(--teal-soft) !important;
+  color: var(--primary-color) !important;
+}
+
+[data-theme='dark'] .profile-input,
+[data-theme='dark'] .profile-textarea,
+[data-theme='dark'] .tool-input,
+[data-theme='dark'] .period-select,
+[data-theme='dark'] select,
+[data-theme='dark'] input[type="text"],
+[data-theme='dark'] input[type="number"],
+[data-theme='dark'] input[type="email"],
+[data-theme='dark'] input[type="password"],
+[data-theme='dark'] textarea {
+  background: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--input-text) !important;
+}
+
+[data-theme='dark'] .recent-tx-table th {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme='dark'] .recent-tx-table tr {
+  border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] .recent-tx-table td {
+  color: var(--text-primary) !important;
+}
+
+[data-theme='dark'] .tx-cat-badge {
+  background: var(--input-bg) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme='dark'] .modal-overlay {
+  background: rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme='dark'] .chat-input-bar {
+  background: var(--input-bg) !important;
+  border-color: var(--border-color) !important;
+}
+

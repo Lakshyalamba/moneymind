@@ -146,8 +146,9 @@ function Login() {
 
             <form className="auth-form" onSubmit={handleSubmit}>
               <div className="form-group">
-                <label className="form-label">Email Address</label>
+                <label htmlFor="email-input" className="form-label">Email Address</label>
                 <input
+                  id="email-input"
                   type="email"
                   name="email"
                   value={formData.email}
@@ -160,8 +161,9 @@ function Login() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Password</label>
+                <label htmlFor="password-input" className="form-label">Password</label>
                 <input
+                  id="password-input"
                   type="password"
                   name="password"
                   value={formData.password}
