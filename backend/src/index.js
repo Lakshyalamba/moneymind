@@ -80,6 +80,7 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 app.use('/api', routes);
+app.use('/api/v1', routes);
 
 // 3. Centralized Production Error Handler (Hides DB details, stack traces)
 app.use((err, req, res, next) => {

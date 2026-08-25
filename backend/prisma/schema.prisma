@@ -26,6 +26,7 @@ model User {
   recurringTransactions RecurringTransaction[]
   categoryRules         CategoryRule[]
   notifications         Notification[]
+  webhookSubscriptions WebhookSubscription[]
 }
 
 model Transaction {
@@ -122,4 +123,18 @@ model Notification {
 
   @@unique([userId, refId])
   @@index([userId, isRead])
+}
+
+model WebhookSubscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  url       String
+  secret    String
+  isActive  Boolean  @default(true)
+  events    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }

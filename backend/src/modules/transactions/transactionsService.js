@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import categorizationEngine, { GLOBAL_CATEGORIES } from './categorization/CategorizationEngine.js';
 import adapterRegistry from './adapters/AdapterRegistry.js';
+import { dispatchEvent } from '../webhooks/webhookService.js';
 
 const prisma = new PrismaClient();
 
@@ -120,7 +121,7 @@ export const fetchTransactions = async (userId, queryParams) => {
 };
 
 export const findTransactionById = async (transactionId, userId) => {
-  const tx = await prisma.transaction.findUnique({
+  const tx = await prisma.transaction.findFirst({
     where: { id: parseInt(transactionId), userId }
   });
   if (tx) {
@@ -162,12 +163,14 @@ export const createTransaction = async (userId, txData) => {
     await learnPersonalizedRule(userId, note, reqCategory);
   }
 
-  return { ...transaction, amount: parseFloat(transaction.amount) };
+  const result = { ...transaction, amount: parseFloat(transaction.amount) };
+  await dispatchEvent(userId, 'transaction.created', result);
+  return result;
 };
 
 export const updateTransaction = async (transactionId, userId, txData) => {
   const { amount, type, category: reqCategory, note, date } = txData;
-  const existing = await prisma.transaction.findUnique({
+  const existing = await prisma.transaction.findFirst({
     where: { id: parseInt(transactionId), userId }
   });
 
@@ -193,7 +196,7 @@ export const updateTransaction = async (transactionId, userId, txData) => {
   }
 
   const updated = await prisma.transaction.update({
-    where: { id: parseInt(transactionId), userId },
+    where: { id: existing.id },
     data: {
       ...(amount && { amount: amount.toString() }),
       ...(type && { type }),
@@ -205,19 +208,23 @@ export const updateTransaction = async (transactionId, userId, txData) => {
     }
   });
 
-  return { ...updated, amount: parseFloat(updated.amount) };
+  const result = { ...updated, amount: parseFloat(updated.amount) };
+  await dispatchEvent(userId, 'transaction.updated', result);
+  return result;
 };
 
 export const deleteTransaction = async (transactionId, userId) => {
-  const existing = await prisma.transaction.findUnique({
+  const existing = await prisma.transaction.findFirst({
     where: { id: parseInt(transactionId), userId }
   });
   if (!existing) {
     return null;
   }
-  return prisma.transaction.delete({
-    where: { id: parseInt(transactionId), userId }
+  const deleted = await prisma.transaction.delete({
+    where: { id: existing.id }
   });
+  await dispatchEvent(userId, 'transaction.deleted', { id: existing.id });
+  return deleted;
 };
 
 export const exportTransactionsData = async (userId, format) => {

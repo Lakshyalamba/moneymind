@@ -8,6 +8,7 @@ import subscriptionsRoutes from './modules/subscriptions/subscriptionsRoutes.js'
 import notificationsRoutes from './modules/notifications/notificationsRoutes.js';
 import analyticsRoutes from './modules/analytics/analyticsRoutes.js';
 import aiRoutes from './modules/ai/aiRoutes.js';
+import webhookRoutes from './modules/webhooks/webhookRoutes.js';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -21,6 +22,7 @@ router.use(subscriptionsRoutes);
 router.use(notificationsRoutes);
 router.use(analyticsRoutes);
 router.use(aiRoutes);
+router.use(webhookRoutes);
 
 // General/System Routes
 // GET /api/health - Health check status
