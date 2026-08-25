@@ -1,0 +1,44 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "save": "Save",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "welcome": "Welcome back, {name}!",
+    "noData": "No data available"
+  },
+  "dashboard": {
+    "title": "Financial Analytics",
+    "subtitle": "Here's your comprehensive financial analytics breakdown",
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "netSavings": "Net Savings",
+    "savingsRate": "Savings Rate",
+    "financialHealth": "Financial Health Score",
+    "healthDesc": "Your overall health grade calculated from savings, budgets, and goals.",
+    "recommendations": "Actionable Recommendations",
+    "breakdown": "Show Detailed Score Breakdown",
+    "hideBreakdown": "Hide Detailed Score Breakdown",
+    "unusualSpending": "Unusual Spending Alerts",
+    "noAlerts": "No unusual spending alerts found."
+  },
+  "widgets": {
+    "netWorthTitle": "Net Worth (Net Savings)",
+    "budgetsTitle": "Category Budgets & Utilization",
+    "goalsTitle": "Savings Goals Progress",
+    "spendingTitle": "Monthly Spending Breakdown",
+    "transactionsTitle": "Recent Transactions",
+    "noGoals": "No active savings goals found.",
+    "noBudgets": "No active category budgets found.",
+    "noTransactions": "No transactions found during this period."
+  },
+  "settings": {
+    "title": "User Preferences",
+    "language": "Preferred Language",
+    "currency": "Preferred Currency",
+    "english": "English",
+    "hindi": "Hindi"
+  }
+}

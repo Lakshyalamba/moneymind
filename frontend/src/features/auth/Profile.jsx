@@ -2,10 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaCamera, FaUser, FaEnvelope, FaPhone, FaInfoCircle, FaCheckCircle, FaExclamationCircle, FaChartLine, FaCalendarAlt, FaExchangeAlt, FaSave, FaTimes, FaEdit } from 'react-icons/fa';
 import { apiRequest, API_BASE_URL } from '../../utils/auth';
+import { useTranslation } from '../../utils/LanguageContext';
+import { useTheme } from '../../utils/ThemeContext';
 import '../../styles/profile.css';
 
 function Profile() {
   const navigate = useNavigate();
+  const { language, setLanguage, currency, setCurrency } = useTranslation();
+  const { theme, setTheme } = useTheme();
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({ name: '', phone: '', bio: '', profilePhoto: '' });
   const [photoPreview, setPhotoPreview] = useState('');
@@ -325,6 +329,53 @@ function Profile() {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="profile-form-card" style={{ marginTop: '2rem' }}>
+        <div className="profile-form-header">
+          <h2>Preferences</h2>
+          <p>Customize your localized dashboard formats</p>
+        </div>
+        <div className="profile-form-fields" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
+          <div className="profile-field">
+            <label>Language</label>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="profile-input"
+              style={{ width: '100%', height: '42px', borderRadius: '6px' }}
+            >
+              <option value="en">English</option>
+              <option value="hi">Hindi</option>
+            </select>
+          </div>
+          <div className="profile-field">
+            <label>Currency</label>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="profile-input"
+              style={{ width: '100%', height: '42px', borderRadius: '6px' }}
+            >
+              <option value="INR">INR (₹)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+            </select>
+          </div>
+          <div className="profile-field">
+            <label>Theme</label>
+            <select
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              className="profile-input"
+              style={{ width: '100%', height: '42px', borderRadius: '6px' }}
+            >
+              <option value="light">Light Mode</option>
+              <option value="dark">Dark Mode</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import notificationRegistry from './providers/Registry.js';
 
 const prisma = new PrismaClient();
 
@@ -47,10 +48,12 @@ export const checkAndGenerateAlerts = async (userId) => {
 
       if (threshold > 0) {
         const refId = `budget-${b.id}-${threshold}`;
-        await prisma.notification.upsert({
-          where: { userId_refId: { userId, refId } },
-          update: {},
-          create: { userId, type, title, message, refId }
+        await notificationRegistry.dispatch({
+          userId,
+          type,
+          title,
+          message,
+          refId
         });
       }
     }
@@ -75,10 +78,12 @@ export const checkAndGenerateAlerts = async (userId) => {
       const message = `Your ${item.isSubscription ? 'subscription' : 'scheduled bill'} for ${item.name} of ₹${parseFloat(item.amount).toLocaleString('en-IN')} is due on ${item.nextOccurrence}.`;
       const refId = `recurring-${item.id}-${item.nextOccurrence}`;
 
-      await prisma.notification.upsert({
-        where: { userId_refId: { userId, refId } },
-        update: {},
-        create: { userId, type, title, message, refId }
+      await notificationRegistry.dispatch({
+        userId,
+        type,
+        title,
+        message,
+        refId
       });
     }
 
@@ -110,10 +115,12 @@ export const checkAndGenerateAlerts = async (userId) => {
 
       if (milestone > 0) {
         const refId = `goal-${g.id}-${milestone}`;
-        await prisma.notification.upsert({
-          where: { userId_refId: { userId, refId } },
-          update: {},
-          create: { userId, type: 'goal_milestone', title, message, refId }
+        await notificationRegistry.dispatch({
+          userId,
+          type: 'goal_milestone',
+          title,
+          message,
+          refId
         });
       }
     }
@@ -124,16 +131,12 @@ export const checkAndGenerateAlerts = async (userId) => {
     });
     for (const tx of anomalies) {
       const refId = `anomaly-${tx.id}`;
-      await prisma.notification.upsert({
-        where: { userId_refId: { userId, refId } },
-        update: {},
-        create: {
-          userId,
-          type: 'unusual_spending',
-          title: 'Unusual Spending Detected',
-          message: `Unusual spend of ₹${parseFloat(tx.amount).toLocaleString('en-IN')} in category ${tx.category} on ${tx.date}. ${tx.anomalyReason}`,
-          refId
-        }
+      await notificationRegistry.dispatch({
+        userId,
+        type: 'unusual_spending',
+        title: 'Unusual Spending Detected',
+        message: `Unusual spend of ₹${parseFloat(tx.amount).toLocaleString('en-IN')} in category ${tx.category} on ${tx.date}. ${tx.anomalyReason}`,
+        refId
       });
     }
 
